@@ -165,7 +165,7 @@ function SessionControls({
           <AiOutlineAudio
             onClick={async () => {
               // videoRoom?.localParticipant.setCameraEnabled(true);
-              // await videoRoom?.localParticipant.setScreenShareEnabled(true);
+              await videoRoom?.localParticipant.setScreenShareEnabled(true);
             }}
           />
           <span className="text-neutral-500 text-sm group-hover:text-violet-500">

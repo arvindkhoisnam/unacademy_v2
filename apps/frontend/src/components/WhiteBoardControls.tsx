@@ -8,8 +8,8 @@ function WhiteBoardControls({
   setColor,
   clearCanvas,
 }: {
-  action: string;
-  setAction: React.Dispatch<SetStateAction<"draw" | "erase">>;
+  action: string | null;
+  setAction: React.Dispatch<SetStateAction<"draw" | "erase" | null>>;
   setColor: React.Dispatch<SetStateAction<string>>;
   clearCanvas: () => void;
 }) {

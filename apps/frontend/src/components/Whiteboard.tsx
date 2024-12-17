@@ -10,7 +10,7 @@ function Whiteboard() {
   const ContextRef = useRef<CanvasRenderingContext2D | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState("black");
-  const [action, setAction] = useState<"draw" | "erase">("draw");
+  const [action, setAction] = useState<"draw" | "erase" | null>(null);
   // const setToDisplay = useSetRecoilState(toDisplay);
   // const Socket = useRecoilValue(socket);
   const Role = useRecoilValue(userRole);
@@ -43,7 +43,7 @@ function Whiteboard() {
     ctx.moveTo(x, y);
   }
   function draw(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
-    if (!isDrawing) return;
+    if (!isDrawing || action === null) return;
 
     const canvas = CanvasRef.current;
     const ctx = ContextRef.current;
