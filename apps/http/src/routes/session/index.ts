@@ -72,6 +72,7 @@ route.get("/all-active", userMiddleware, async (req, res) => {
 
 route.post("/:sessionId/start", adminMiddleware, async (req, res) => {
   const { sessionId } = req.params;
+  const jwtToken = req.jwtToken;
   const user = await db.user.findFirst({ where: { id: req.userId } });
   if (!sessionId) {
     return;
@@ -80,7 +81,7 @@ route.post("/:sessionId/start", adminMiddleware, async (req, res) => {
     return;
   }
 
-  await db.session.update({
+  const session = await db.session.update({
     where: { sessionId: sessionId },
     data: { status: "active" },
   });
@@ -93,13 +94,19 @@ route.post("/:sessionId/start", adminMiddleware, async (req, res) => {
   };
   const room = await svc.createRoom(opts);
   const token = await adminVideoToken(sessionId, user.username);
-  res
-    .status(200)
-    .json({ message: "Session started successfully.", room, token });
+  console.log(session.title);
+  res.status(200).json({
+    message: "Session started successfully.",
+    room,
+    token,
+    jwtToken,
+    sessionTitle: session.title,
+  });
 });
 
 route.post("/:sessionId/join", userMiddleware, async (req, res) => {
   const { sessionId } = req.params;
+  const jwtToken = req.jwtToken;
   const user = await db.user.findFirst({ where: { id: req.userId } });
   if (!sessionId) {
     return;
@@ -107,8 +114,21 @@ route.post("/:sessionId/join", userMiddleware, async (req, res) => {
   if (!user) {
     return;
   }
+  const session = await db.session.findUnique({
+    where: { sessionId: sessionId },
+  });
+  if (!session) {
+    res.status(400).json({ message: "No session found with the sessionId" });
+    return;
+  }
+  console.log(session.title);
   const token = await userVideoToken(sessionId, user.username);
-  res.status(200).json({ message: "Session joined successfully.", token });
+  res.status(200).json({
+    message: "Session joined successfully.",
+    token,
+    jwtToken,
+    sessionTitle: session.title,
+  });
 });
 
 route.post("/:sessionId/end", adminMiddleware, async (req, res) => {

@@ -1,6 +1,7 @@
 import { SetStateAction } from "react";
 import { socket, toDisplay } from "../recoil";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useParams } from "react-router-dom";
 
 function WhiteBoardControls({
   action,
@@ -15,6 +16,7 @@ function WhiteBoardControls({
 }) {
   const setToDisplay = useSetRecoilState(toDisplay);
   const Socket = useRecoilValue(socket);
+  const { sessionId } = useParams();
 
   return (
     <div className="p-2">
@@ -56,7 +58,14 @@ function WhiteBoardControls({
           className="px-2 py-1 rounded-lg bg-rose-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-sm"
           onClick={() => {
             setToDisplay("video");
-            Socket?.send(JSON.stringify({ event: "whiteBoard-close" }));
+            Socket?.send(
+              JSON.stringify({
+                event: "whiteBoard-close",
+                payload: {
+                  sessionId: sessionId,
+                },
+              })
+            );
           }}
         >
           close

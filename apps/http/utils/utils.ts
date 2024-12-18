@@ -4,6 +4,7 @@ declare global {
     export interface Request {
       role?: "admin" | "user";
       userId?: string;
+      jwtToken?: string;
     }
   }
 }

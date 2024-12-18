@@ -2,6 +2,7 @@ import { GrNext, GrPrevious } from "react-icons/gr";
 import { imageUrls, socket, toDisplay } from "../recoil";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { SetStateAction } from "react";
+import { useParams } from "react-router-dom";
 
 function SlideControls({
   currPage,
@@ -13,6 +14,7 @@ function SlideControls({
   const ImageUrls = useRecoilValue(imageUrls);
   const setToDisplay = useSetRecoilState(toDisplay);
   const Socket = useRecoilValue(socket);
+  const { sessionId } = useParams();
   function nextPage() {
     if (currPage < ImageUrls.length - 1) {
       setCurrPage((currPage) => currPage + 1);
@@ -46,7 +48,14 @@ function SlideControls({
           className="px-2 py-1 rounded-lg bg-rose-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-sm"
           onClick={() => {
             setToDisplay("video");
-            Socket?.send(JSON.stringify({ event: "image-close" }));
+            Socket?.send(
+              JSON.stringify({
+                event: "image-close",
+                payload: {
+                  sessionId: sessionId,
+                },
+              })
+            );
           }}
         >
           close

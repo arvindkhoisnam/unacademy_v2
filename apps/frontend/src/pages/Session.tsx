@@ -1,7 +1,7 @@
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { sessionTitle, socket, toDisplay, userRole } from "../recoil";
+import { useRecoilValue } from "recoil";
+import { sessionTitle, toDisplay, userRole } from "../recoil";
 import Video from "../components/Video";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Canvas from "../components/Canvas";
 import { Room } from "livekit-client";
 import SessionControls from "../components/SessionControls";
@@ -14,29 +14,8 @@ function Session() {
   const [videoRoom, setVideoRoom] = useState<Room | null>(null);
   const [videoOff, setVideoOff] = useState(false);
   const Role = useRecoilValue(userRole);
-  const [ToDisplayValue, setToDisplay] = useRecoilState(toDisplay);
-  const setSocket = useSetRecoilState(socket);
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:9998");
-    ws.onopen = () => {
-      console.log("connected to ws");
-      setSocket(ws);
-    };
-
-    ws.onmessage = (message) => {
-      const parsed = JSON.parse(message.data as unknown as string);
-
-      if (parsed.event === "image-open") {
-        setToDisplay("image");
-      } else if (parsed.event === "image-close") {
-        setToDisplay("video");
-      } else if (parsed.event === "whiteBoard-open") {
-        setToDisplay("board");
-      } else if (parsed.event === "whiteBoard-close") {
-        setToDisplay("video");
-      }
-    };
-  }, [setSocket, setToDisplay]);
+  const ToDisplayValue = useRecoilValue(toDisplay);
+  console.log(ToDisplayValue);
   return (
     <div className="bg-neutral-950 h-screen p-4 grid grid-cols-9 gap-4">
       <div className="bg-neutral-900 h-full col-span-7 rounded-xl p-4">

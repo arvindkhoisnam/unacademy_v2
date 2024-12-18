@@ -1,7 +1,5 @@
 import { MdOnlinePrediction } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
-import { sessionTitle } from "../recoil";
 
 function ClassAdmin({
   title,
@@ -13,10 +11,8 @@ function ClassAdmin({
   sessionId: string;
 }) {
   const navigate = useNavigate();
-  const setSessionTitle = useSetRecoilState(sessionTitle);
 
   function startSession() {
-    setSessionTitle(title);
     navigate(`/session/${sessionId}`);
   }
   return (

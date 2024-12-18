@@ -25,6 +25,7 @@ export function adminMiddleware(
       return;
     }
     req.userId = decoded.id;
+    req.jwtToken = token;
     next();
   } catch (err) {
     console.log(err);

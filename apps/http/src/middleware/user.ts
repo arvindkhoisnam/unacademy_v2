@@ -21,6 +21,7 @@ export function userMiddleware(
       role: string;
     };
     req.userId = decoded.id;
+    req.jwtToken = token;
     next();
   } catch (err) {
     res.status(403).json({ message: "Unauthorized" });

@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-// import { socket, toDisplay } from "../recoil";
-// import { useRecoilValue, useSetRecoilState } from "recoil";
+import { socket, toDisplay } from "../recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import WhiteBoardControls from "./WhiteBoardControls";
 import { userRole } from "../recoil";
-import { useRecoilValue } from "recoil";
+import { useParams } from "react-router-dom";
 
 function Whiteboard() {
   const CanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -11,9 +11,11 @@ function Whiteboard() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState("black");
   const [action, setAction] = useState<"draw" | "erase" | null>(null);
-  // const setToDisplay = useSetRecoilState(toDisplay);
-  // const Socket = useRecoilValue(socket);
+  const Socket = useRecoilValue(socket);
   const Role = useRecoilValue(userRole);
+  const { sessionId } = useParams();
+  const setToDisplay = useSetRecoilState(toDisplay);
+
   useEffect(() => {
     const canvas = CanvasRef.current;
     if (!canvas) return;
@@ -27,7 +29,29 @@ function Whiteboard() {
       ctx.lineJoin = "round";
       ContextRef.current = ctx;
     }
-  }, []);
+
+    Socket!.onmessage = (message) => {
+      const parsed = JSON.parse(message.data as unknown as string);
+      const canvas = CanvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (!ctx) return;
+      switch (parsed.event) {
+        case "start-drawing-board":
+          setAction("draw");
+          setColor("black");
+          ctx.beginPath();
+          ctx.moveTo(parsed.payload.x, parsed.payload.y);
+          break;
+        case "move-drawing-board":
+          ctx.lineTo(parsed.payload.x, parsed.payload.y);
+          ctx.stroke();
+          break;
+        case "whiteBoard-close":
+          setToDisplay("video");
+          break;
+      }
+    };
+  }, [Socket, setToDisplay]);
 
   function start(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     const canvas = CanvasRef.current;
@@ -41,6 +65,16 @@ function Whiteboard() {
     const y = e.clientY - top;
     ctx.beginPath();
     ctx.moveTo(x, y);
+    Socket?.send(
+      JSON.stringify({
+        event: "start-drawing-board",
+        payload: {
+          sessionId: sessionId,
+          x: x,
+          y: y,
+        },
+      })
+    );
   }
   function draw(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     if (!isDrawing || action === null) return;
@@ -60,6 +94,16 @@ function Whiteboard() {
       ctx.lineWidth = 2;
     }
     ctx.stroke();
+    Socket?.send(
+      JSON.stringify({
+        event: "move-drawing-board",
+        payload: {
+          sessionId: sessionId,
+          x: x,
+          y: y,
+        },
+      })
+    );
   }
 
   function stop() {

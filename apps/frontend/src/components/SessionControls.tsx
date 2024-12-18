@@ -122,7 +122,14 @@ function SessionControls({
           <TbFileUpload
             onClick={async () => {
               await uploadPdf();
-              Socket?.send(JSON.stringify({ event: "image-open" }));
+              Socket?.send(
+                JSON.stringify({
+                  event: "image-open",
+                  payload: {
+                    sessionId: sessionId,
+                  },
+                })
+              );
               setToDisplay("image");
             }}
           />
@@ -134,7 +141,14 @@ function SessionControls({
           <MdDraw
             onClick={() => {
               setToDisplay("board");
-              Socket?.send(JSON.stringify({ event: "whiteBoard-open" }));
+              Socket?.send(
+                JSON.stringify({
+                  event: "whiteBoard-open",
+                  payload: {
+                    sessionId: sessionId,
+                  },
+                })
+              );
             }}
           />
           <span className="text-neutral-500 text-sm group-hover:text-violet-500">

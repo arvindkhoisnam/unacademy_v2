@@ -2,8 +2,8 @@ import axios from "axios";
 import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Room, RoomEvent, Track } from "livekit-client";
-import { useRecoilValue } from "recoil";
-import { userRole } from "../recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { sessionTitle, socket, toDisplay, userRole } from "../recoil";
 
 function Video({
   setVideoRoom,
@@ -14,6 +14,10 @@ function Video({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoRoomRef = useRef<Room | null>(null);
   const Role = useRecoilValue(userRole);
+  const setSocket = useSetRecoilState(socket);
+  const setToDisplay = useSetRecoilState(toDisplay);
+  const setSessionTitle = useSetRecoilState(sessionTitle);
+
   useEffect(() => {
     if (videoRoomRef.current) {
       return;
@@ -32,6 +36,44 @@ function Video({
         }
       );
 
+      setSessionTitle(res.data.sessionTitle);
+      const ws = new WebSocket("ws://localhost:3001");
+
+      ws.onopen = () => {
+        console.log("connected to ws");
+        ws.send(
+          JSON.stringify({
+            event: "join",
+            payload: {
+              role: Role,
+              sessionId: sessionId,
+              jwtToken: res.data.jwtToken,
+            },
+          })
+        );
+        setSocket(ws);
+      };
+
+      ws.onmessage = (message) => {
+        const parsed = JSON.parse(message.data as unknown as string);
+        console.log(parsed.event);
+        switch (parsed.event) {
+          case "image-open":
+            setToDisplay("image");
+            break;
+          case "image-close":
+            setToDisplay("video");
+            break;
+          case "whiteBoard-open":
+            setToDisplay("board");
+            break;
+          case "whiteBoard-close":
+            setToDisplay("video");
+            break;
+          default:
+            break;
+        }
+      };
       await newRoom.connect("ws://localhost:7880", res.data.token);
       const p = newRoom.localParticipant;
 
@@ -59,7 +101,7 @@ function Video({
       newRoom.localParticipant.setCameraEnabled(false);
       newRoom.disconnect();
     };
-  }, [sessionId, setVideoRoom, Role]);
+  }, [sessionId, setVideoRoom, Role, setSessionTitle, setSocket, setToDisplay]);
   return (
     <video
       className="h-[90%] max-w-full bg-neutral-950 rounded-xl mb-2"
