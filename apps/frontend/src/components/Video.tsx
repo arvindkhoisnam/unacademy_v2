@@ -1,9 +1,9 @@
-import axios from "axios";
 import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Room, RoomEvent, Track } from "livekit-client";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { sessionTitle, socket, toDisplay, userRole } from "../recoil";
+import { socket, toDisplay, userRole } from "../recoil";
+import axios from "axios";
 
 function Video({
   setVideoRoom,
@@ -14,9 +14,8 @@ function Video({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoRoomRef = useRef<Room | null>(null);
   const Role = useRecoilValue(userRole);
-  const setSocket = useSetRecoilState(socket);
   const setToDisplay = useSetRecoilState(toDisplay);
-  const setSessionTitle = useSetRecoilState(sessionTitle);
+  const Socket = useRecoilValue(socket);
 
   useEffect(() => {
     if (videoRoomRef.current) {
@@ -25,58 +24,14 @@ function Video({
     const newRoom = new Room();
     setVideoRoom(newRoom);
     videoRoomRef.current = newRoom;
+
     async function startSession() {
-      const res = await axios.post(
-        Role === "admin"
-          ? `http://localhost:3000/api/v1/session/${sessionId}/start`
-          : `http://localhost:3000/api/v1/session/${sessionId}/join`,
-        {},
-        {
-          withCredentials: true,
-        }
+      const res = await axios.get(
+        ` http://localhost:3000/api/v1/session/${sessionId}/videoToken`,
+        { withCredentials: true }
       );
-
-      setSessionTitle(res.data.sessionTitle);
-      const ws = new WebSocket("ws://localhost:3001");
-
-      ws.onopen = () => {
-        console.log("connected to ws");
-        ws.send(
-          JSON.stringify({
-            event: "join",
-            payload: {
-              role: Role,
-              sessionId: sessionId,
-              jwtToken: res.data.jwtToken,
-            },
-          })
-        );
-        setSocket(ws);
-      };
-
-      ws.onmessage = (message) => {
-        const parsed = JSON.parse(message.data as unknown as string);
-        console.log(parsed.event);
-        switch (parsed.event) {
-          case "image-open":
-            setToDisplay("image");
-            break;
-          case "image-close":
-            setToDisplay("video");
-            break;
-          case "whiteBoard-open":
-            setToDisplay("board");
-            break;
-          case "whiteBoard-close":
-            setToDisplay("video");
-            break;
-          default:
-            break;
-        }
-      };
       await newRoom.connect("ws://localhost:7880", res.data.token);
       const p = newRoom.localParticipant;
-
       if (Role === "admin") {
         await p.setCameraEnabled(true);
         const videoTrack = p.getTrackPublication(Track.Source.Camera);
@@ -89,22 +44,44 @@ function Video({
           });
         }
       }
-
       newRoom.on(RoomEvent.TrackSubscribed, (track) => {
         if (track.kind === "video") {
           track.attach(videoRef.current as HTMLMediaElement);
         }
       });
     }
+
     startSession();
     return () => {
       newRoom.localParticipant.setCameraEnabled(false);
       newRoom.disconnect();
     };
-  }, [sessionId, setVideoRoom, Role, setSessionTitle, setSocket, setToDisplay]);
+  }, [sessionId, setVideoRoom, Role]);
+
+  useEffect(() => {
+    function handleEvents(message) {
+      if (!Socket) return;
+      const parsed = JSON.parse(message.data as unknown as string);
+      switch (parsed.event) {
+        case "image-open":
+          setToDisplay("image");
+          break;
+        case "whiteBoard-open":
+          setToDisplay("board");
+          break;
+        default:
+          break;
+      }
+    }
+    Socket?.addEventListener("message", handleEvents);
+
+    return () => {
+      Socket?.removeEventListener("message", handleEvents);
+    };
+  }, [Socket, setToDisplay]);
   return (
     <video
-      className="h-[90%] max-w-full bg-neutral-950 rounded-xl mb-2"
+      className="h-[90%] max-w-full bg-neutral-950 rounded-xl mb-1"
       ref={videoRef}
     />
   );

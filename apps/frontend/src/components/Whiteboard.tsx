@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { socket, toDisplay } from "../recoil";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { socket, toDisplay, whiteBoardState } from "../recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import WhiteBoardControls from "./WhiteBoardControls";
 import { userRole } from "../recoil";
 import { useParams } from "react-router-dom";
@@ -15,13 +15,14 @@ function Whiteboard() {
   const Role = useRecoilValue(userRole);
   const { sessionId } = useParams();
   const setToDisplay = useSetRecoilState(toDisplay);
+  const [WhiteBoardState, setWhiteBoardState] = useRecoilState(whiteBoardState);
 
   useEffect(() => {
     const canvas = CanvasRef.current;
     if (!canvas) return;
 
-    canvas.height = canvas?.offsetHeight;
-    canvas.width = canvas?.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    canvas.width = canvas.offsetWidth;
 
     const ctx = canvas.getContext("2d");
     if (ctx) {
@@ -30,28 +31,90 @@ function Whiteboard() {
       ContextRef.current = ctx;
     }
 
-    Socket!.onmessage = (message) => {
-      const parsed = JSON.parse(message.data as unknown as string);
+    if (WhiteBoardState.length > 0) {
+      const canvas = CanvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const { height, width } = canvas.getBoundingClientRect();
+
+      const xTimes = width / WhiteBoardState[0].adminWidth;
+      const yTimes = height / WhiteBoardState[0].adminHeight;
+      let xStart = WhiteBoardState[0].x * xTimes;
+      let yStart = WhiteBoardState[0].y * yTimes;
+      for (let i = 1; i < WhiteBoardState.length; i++) {
+        const newX = xTimes * WhiteBoardState[i].x;
+        const newY = yTimes * WhiteBoardState[i].y;
+        ctx.beginPath();
+        ctx.moveTo(xStart, yStart);
+        ctx.lineTo(newX, newY);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        xStart = newX;
+        yStart = newY;
+      }
+    }
+
+    function handleEvents(event) {
+      const parsed = JSON.parse(event.data);
       const canvas = CanvasRef.current;
       const ctx = canvas?.getContext("2d");
+      const { height, width } = canvas!.getBoundingClientRect();
+
       if (!ctx) return;
+
       switch (parsed.event) {
-        case "start-drawing-board":
+        case "whiteBoard-draw":
           setAction("draw");
-          setColor("black");
-          ctx.beginPath();
-          ctx.moveTo(parsed.payload.x, parsed.payload.y);
+          ctx.strokeStyle = "black";
+          ctx.lineWidth = 2;
           break;
-        case "move-drawing-board":
-          ctx.lineTo(parsed.payload.x, parsed.payload.y);
+        case "start-drawing-board": {
+          const xTimes = Number(width) / Number(parsed.payload.adminWidth);
+          const yTimes = Number(height) / Number(parsed.payload.adminHeight);
+          const newX = xTimes * parsed.payload.x;
+          const newY = yTimes * parsed.payload.y;
+          ctx.beginPath();
+          ctx.moveTo(newX, newY);
+          break;
+        }
+        case "move-drawing-board": {
+          const xTimes = Number(width) / Number(parsed.payload.adminWidth);
+          const yTimes = Number(height) / Number(parsed.payload.adminHeight);
+          const newX = xTimes * parsed.payload.x;
+          const newY = yTimes * parsed.payload.y;
+          ctx.lineTo(newX, newY);
           ctx.stroke();
           break;
+        }
+        case "whiteBoard-color-change":
+          ctx.strokeStyle = parsed.payload.strokeStyle;
+          break;
+        case "whiteBoard-erase":
+          ctx.strokeStyle = "#d4d4d4";
+          ctx.lineWidth = 20;
+          break;
+        case "whiteBoard-clear":
+          clearCanvas();
+          break;
         case "whiteBoard-close":
+          setWhiteBoardState([]);
           setToDisplay("video");
           break;
+        default:
+          break;
       }
+    }
+
+    Socket?.addEventListener("message", handleEvents);
+
+    return () => {
+      Socket?.removeEventListener("message", handleEvents);
     };
-  }, [Socket, setToDisplay]);
+  }, [Socket, setToDisplay, WhiteBoardState]);
 
   function start(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     const canvas = CanvasRef.current;
@@ -59,8 +122,8 @@ function Whiteboard() {
     if (!canvas || !ctx) return;
 
     setIsDrawing(true);
-    const { left, top } = canvas.getBoundingClientRect();
-
+    const { left, top, height, width } = canvas.getBoundingClientRect();
+    console.log(height, width);
     const x = e.clientX - left;
     const y = e.clientY - top;
     ctx.beginPath();
@@ -72,6 +135,8 @@ function Whiteboard() {
           sessionId: sessionId,
           x: x,
           y: y,
+          adminHeight: height,
+          adminWidth: width,
         },
       })
     );
@@ -82,8 +147,8 @@ function Whiteboard() {
     const canvas = CanvasRef.current;
     const ctx = ContextRef.current;
     if (!canvas || !ctx) return;
-    const { left, top } = canvas.getBoundingClientRect();
-
+    const { left, top, height, width } = canvas.getBoundingClientRect();
+    console.log(height, width);
     const x = e.clientX - left;
     const y = e.clientY - top;
     ctx.lineTo(x, y);
@@ -101,6 +166,8 @@ function Whiteboard() {
           sessionId: sessionId,
           x: x,
           y: y,
+          adminHeight: height,
+          adminWidth: width,
         },
       })
     );

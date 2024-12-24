@@ -28,6 +28,7 @@ model Session {
   startTime  String?
   status     SessionStatus @default(inactive)
   images     Image[]
+  events     CurrentRoomState[]
 }
 model Image {
   id         Int @id @unique @default(autoincrement())
@@ -35,6 +36,29 @@ model Image {
   session    Session @relation(fields: [session_Id],references: [sessionId])
   session_Id String
   taskId     String
+}
+
+model CurrentRoomState{
+  id         String @id @unique @default(cuid())
+  event      String
+  payload    Payload[]
+  epoch      BigInt
+  session    Session @relation(fields: [session_Id],references: [sessionId])
+  session_Id String
+}
+
+
+model Payload {
+  id              String @id @unique @default(cuid())
+  epoch           BigInt
+  imgUrl          Json?
+  currPage        Int?
+  x               Int?
+  y               Int?
+  adminHeight     Int?
+  adminWidth      Int?
+  currRoomState   CurrentRoomState @relation(fields: [currRoomStateId],references: [id])
+  currRoomStateId String 
 }
 enum Role {
   admin

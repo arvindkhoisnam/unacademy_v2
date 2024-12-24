@@ -1,63 +1,65 @@
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { imageUrls, socket, toDisplay, userRole } from "../recoil";
-import { useEffect, useState } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  imageCurrPage,
+  imageUrls,
+  socket,
+  toDisplay,
+  userRole,
+} from "../recoil";
+import { useEffect } from "react";
 import SlideControls from "./SlideControls";
 import { useParams } from "react-router-dom";
 
 function Canvas() {
-  const ImageUrls = useRecoilValue(imageUrls);
-  const [currPage, setCurrPage] = useState(0);
+  const [ImageUrls, setImageUrls] = useRecoilState(imageUrls);
   const Socket = useRecoilValue(socket);
   const Role = useRecoilValue(userRole);
   const { sessionId } = useParams();
-  const [images, setImages] = useState<string[]>([]);
   const setToDisplay = useSetRecoilState(toDisplay);
-  useEffect(() => {
-    console.log(ImageUrls);
-    setImages(ImageUrls);
-    if (!Socket) return;
-    Socket.send(
-      JSON.stringify({
-        event: "image-load",
-        payload: {
-          sessionId: sessionId,
-          imgUrl: ImageUrls,
-        },
-      })
-    );
+  const [currPage, setCurrPage] = useRecoilState(imageCurrPage);
 
-    Socket.onmessage = (message) => {
+  useEffect(() => {
+    if (!Socket) return;
+    const handleMessage = (message: { data: unknown }) => {
       const parsed = JSON.parse(message.data as unknown as string);
-      console.log(parsed);
       switch (parsed.event) {
         case "image-load":
-          // setImageUrls(parsed.payload.imgUrl);
-          setImages(parsed.payload.imgUrl);
+          setImageUrls(parsed.payload.imgUrl);
+          setCurrPage(0);
           break;
         case "image-close":
           setToDisplay("video");
           break;
+        case "image-next-page":
+          console.log(parsed.payload);
+          setCurrPage(parsed.payload.currPage);
+          break;
+        case "image-prev-page":
+          console.log(parsed.payload);
+          setCurrPage(parsed.payload.currPage);
+          break;
       }
     };
-  }, [Socket, sessionId, setImages, ImageUrls, setToDisplay]);
+    Socket.addEventListener("message", handleMessage);
 
+    return () => {
+      Socket.removeEventListener("message", handleMessage);
+    };
+  }, [Socket, sessionId, setToDisplay, setImageUrls, setCurrPage]);
   return (
     <div className="h-[90%] mb-2">
-      {/* <canvas className="h-[95%]  max-w-full bg-neutral-800 rounded-xl" /> */}
       <div
         style={{
           height: "100%",
           width: "100%",
           borderRadius: "20px",
-          backgroundImage: `url(${images[currPage]})`,
+          backgroundImage: `url(${ImageUrls[currPage]})`,
           backgroundPosition: "center",
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
         }}
       />
-      {Role === "admin" && (
-        <SlideControls currPage={currPage} setCurrPage={setCurrPage} />
-      )}
+      {Role === "admin" && <SlideControls />}
     </div>
   );
 }

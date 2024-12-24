@@ -15,7 +15,7 @@ function Session() {
   const [videoOff, setVideoOff] = useState(false);
   const Role = useRecoilValue(userRole);
   const ToDisplayValue = useRecoilValue(toDisplay);
-  console.log(ToDisplayValue);
+
   return (
     <div className="bg-neutral-950 h-screen p-4 grid grid-cols-9 gap-4">
       <div className="bg-neutral-900 h-full col-span-7 rounded-xl p-4">

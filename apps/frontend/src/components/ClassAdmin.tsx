@@ -1,5 +1,8 @@
+import axios from "axios";
 import { MdOnlinePrediction } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { sessionTitle, socket, userRole } from "../recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 
 function ClassAdmin({
   title,
@@ -10,9 +13,36 @@ function ClassAdmin({
   status: string;
   sessionId: string;
 }) {
+  const Role = useRecoilValue(userRole);
   const navigate = useNavigate();
+  const setSessionTitle = useSetRecoilState(sessionTitle);
+  const setSocket = useSetRecoilState(socket);
 
-  function startSession() {
+  async function startSession() {
+    const res = await axios.post(
+      `http://localhost:3000/api/v1/session/${sessionId}/start`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+    setSessionTitle(res.data.sessionTitle);
+    // setVideoToken(res.data.token);
+    const ws = new WebSocket("ws://localhost:3001");
+    ws.onopen = () => {
+      console.log("connected to ws");
+      ws.send(
+        JSON.stringify({
+          event: "join",
+          payload: {
+            role: Role,
+            sessionId: sessionId,
+            jwtToken: res.data.jwtToken,
+          },
+        })
+      );
+      setSocket(ws);
+    };
     navigate(`/session/${sessionId}`);
   }
   return (
@@ -28,7 +58,7 @@ function ClassAdmin({
       </div>
       <button
         onClick={() => status !== "active" && startSession()}
-        className={`${status === "active" ? "bg-rose-800" : "bg-neutral-300"}  px-3 py-1 rounded-lg text-neutral-950 font-thin`}
+        className={`${status === "active" ? "bg-rose-800" : "bg-neutral-300"}  px-3 py-1 rounded-lg text-neutral-950 font-thin cursor-pointer`}
       >
         {status === "active" ? "End" : "Start"}
       </button>

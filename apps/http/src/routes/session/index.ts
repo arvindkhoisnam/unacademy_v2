@@ -73,18 +73,15 @@ route.get("/all-active", userMiddleware, async (req, res) => {
 route.post("/:sessionId/start", adminMiddleware, async (req, res) => {
   const { sessionId } = req.params;
   const jwtToken = req.jwtToken;
-  const user = await db.user.findFirst({ where: { id: req.userId } });
+
   if (!sessionId) {
     return;
   }
-  if (!user) {
-    return;
-  }
-
   const session = await db.session.update({
     where: { sessionId: sessionId },
     data: { status: "active" },
   });
+
   const opts = {
     name: sessionId,
     emptyTimeout: 10 * 60,
@@ -93,14 +90,34 @@ route.post("/:sessionId/start", adminMiddleware, async (req, res) => {
     canSubscribe: true,
   };
   const room = await svc.createRoom(opts);
-  const token = await adminVideoToken(sessionId, user.username);
-  console.log(session.title);
+
   res.status(200).json({
     message: "Session started successfully.",
-    room,
-    token,
     jwtToken,
     sessionTitle: session.title,
+    room,
+  });
+});
+
+route.get("/:sessionId/videoToken", userMiddleware, async (req, res) => {
+  const { sessionId } = req.params;
+  let token: string;
+  const user = await db.user.findFirst({ where: { id: req.userId } });
+  if (!sessionId) {
+    return;
+  }
+  if (!user) {
+    return;
+  }
+  if (user.role === "admin") {
+    token = await adminVideoToken(sessionId, user.username);
+  } else {
+    token = await userVideoToken(sessionId, user.username);
+  }
+
+  res.status(200).json({
+    message: "Video started successfully.",
+    token,
   });
 });
 
@@ -121,13 +138,59 @@ route.post("/:sessionId/join", userMiddleware, async (req, res) => {
     res.status(400).json({ message: "No session found with the sessionId" });
     return;
   }
-  console.log(session.title);
-  const token = await userVideoToken(sessionId, user.username);
+
+  const latestEvent = await db.currentRoomState.findFirst({
+    where: {
+      session_Id: session.sessionId,
+    },
+    orderBy: {
+      epoch: "desc",
+    },
+  });
+  const correspondingPayload = await db.payload.findMany({
+    where: { currRoomStateId: latestEvent?.id },
+    orderBy: {
+      epoch: "asc",
+    },
+    select: {
+      adminHeight: true,
+      adminWidth: true,
+      imgUrl: true,
+      x: true,
+      y: true,
+      currPage: true,
+    },
+  });
+  // if (latestEvent?.event === "mouse-movement") {
+  //   const allMouseMovements = await db.currentRoomState.findMany({
+  //     where: {
+  //       session_Id: session.sessionId,
+  //       event: "mouse-movement",
+  //     },
+  //     orderBy: {
+  //       epoch: "asc", // Get events from the beginning
+  //     },
+  //   });
+
+  //   res.status(200).json({
+  //     message: "Session joined successfully.",
+  //     jwtToken,
+  //     sessionTitle: session.title,
+  //     currentState: {
+  //       state: latestEvent?.event,
+  //       payload: JSON.stringify(allMouseMovements),
+  //     },
+  //   });
+  //   return;
+  // }
   res.status(200).json({
     message: "Session joined successfully.",
-    token,
     jwtToken,
     sessionTitle: session.title,
+    currentState: {
+      state: latestEvent?.event,
+      payload: correspondingPayload,
+    },
   });
 });
 

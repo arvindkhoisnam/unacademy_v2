@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import ClassUser from "./ClassUser";
+import { SessionType } from "@repo/validators/index";
 
 function AllClassesUser() {
   const [sessions, setSessions] = useState<[]>([]);
@@ -12,14 +13,15 @@ function AllClassesUser() {
           withCredentials: true,
         }
       );
+      console.log(res.data);
       setSessions(res.data.allSessions);
     }
     fetchData();
   }, []);
   return (
-    <div className="p-6 rounded-xl border border-neutral-700">
+    <div className="p-6">
       <ul className="h-96 overflow-y-scroll scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 scrollbar-thumb-rounded p-2">
-        {sessions.map((session, index) => (
+        {sessions.map((session: SessionType, index) => (
           <ClassUser
             title={session.title}
             sessionId={session.sessionId}

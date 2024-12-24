@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { imageUrls, socket, toDisplay } from "../recoil";
+import { imageCurrPage, imageUrls, socket, toDisplay } from "../recoil";
 
 function SessionControls({
   videoRoom,
@@ -29,7 +29,7 @@ function SessionControls({
   const setImageUrls = useSetRecoilState(imageUrls);
   const setToDisplay = useSetRecoilState(toDisplay);
   const Socket = useRecoilValue(socket);
-
+  const setCurrPage = useSetRecoilState(imageCurrPage);
   useEffect(() => {
     videoRoom?.on(RoomEvent.ParticipantConnected, (participant) => {
       setTotalParticipants(videoRoom?.numParticipants);
@@ -101,6 +101,23 @@ function SessionControls({
             return getNumber(a) - getNumber(b);
           });
           setImageUrls(sortedUrls);
+          Socket?.send(
+            JSON.stringify({
+              event: "image-open",
+              payload: {
+                sessionId: sessionId,
+              },
+            })
+          );
+          Socket?.send(
+            JSON.stringify({
+              event: "image-load",
+              payload: {
+                sessionId: sessionId,
+                imgUrl: sortedUrls,
+              },
+            })
+          );
           return;
         }
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -112,33 +129,28 @@ function SessionControls({
   }
   return (
     <div className="flex justify-center items-center gap-2">
-      <div className="border border-neutral-600 text-xl text-neutral-200 flex px-8 py-2 justify-center gap-6 max-w-fit rounded-xl">
+      <div className="border border-neutral-600 text-xl text-neutral-200 flex px-2 py-1 justify-center gap-6 max-w-fit rounded-xl">
         <input
           onChange={(e) => setPdfFile(e.target.files![0] || null)}
           type="file"
-          className="p-2 bg-neutral-800 text-neutral-300 text-sm font-thin rounded-lg w-44"
+          className="p-1 bg-neutral-800 text-neutral-300 text-xs font-thin rounded-lg w-44"
         />
-        <div className="group flex flex-col items-center hover:scale-105 cursor-pointer">
+        <div className="group flex flex-col items-center cursor-pointer">
           <TbFileUpload
+            className="text-sm"
             onClick={async () => {
               await uploadPdf();
-              Socket?.send(
-                JSON.stringify({
-                  event: "image-open",
-                  payload: {
-                    sessionId: sessionId,
-                  },
-                })
-              );
+              setCurrPage(0);
               setToDisplay("image");
             }}
           />
-          <span className="text-neutral-500 text-sm group-hover:text-violet-500">
+          <span className="text-neutral-500 text-xs group-hover:text-violet-500">
             Upload
           </span>
         </div>
-        <div className="group flex flex-col items-center hover:scale-105 cursor-pointer">
+        <div className="group flex flex-col items-center cursor-pointer">
           <MdDraw
+            className="text-sm"
             onClick={() => {
               setToDisplay("board");
               Socket?.send(
@@ -151,13 +163,14 @@ function SessionControls({
               );
             }}
           />
-          <span className="text-neutral-500 text-sm group-hover:text-violet-500">
+          <span className="text-neutral-500 text-xs group-hover:text-violet-500">
             Draw
           </span>
         </div>
-        <div className="group flex flex-col items-center hover:scale-105 cursor-pointer">
+        <div className="group flex flex-col items-center cursor-pointer">
           {videoOff ? (
             <IoVideocamOutline
+              className="text-sm"
               onClick={() => {
                 setVideoOff(false);
                 videoRoom?.localParticipant.setCameraEnabled(true);
@@ -165,36 +178,38 @@ function SessionControls({
             />
           ) : (
             <FiVideoOff
+              className="text-sm"
               onClick={() => {
                 setVideoOff(true);
                 videoRoom?.localParticipant.setCameraEnabled(false);
               }}
             />
           )}
-          <span className="text-neutral-500 text-sm group-hover:text-violet-500">
+          <span className="text-neutral-500 text-xs group-hover:text-violet-500">
             Video
           </span>
         </div>
-        <div className="group flex flex-col items-center hover:scale-105 cursor-pointer">
+        <div className="group flex flex-col items-center cursor-pointer">
           <AiOutlineAudio
+            className="text-sm"
             onClick={async () => {
               // videoRoom?.localParticipant.setCameraEnabled(true);
               await videoRoom?.localParticipant.setScreenShareEnabled(true);
             }}
           />
-          <span className="text-neutral-500 text-sm group-hover:text-violet-500">
+          <span className="text-neutral-500 text-xs group-hover:text-violet-500">
             Audio
           </span>
         </div>
-        <div className="group flex flex-col items-center hover:scale-105 cursor-pointer">
-          <MdCallEnd className="text-rose-500" onClick={endClass} />
-          <span className="text-neutral-500 text-sm group-hover:text-rose-500">
+        <div className="group flex flex-col items-center cursor-pointer">
+          <MdCallEnd className="text-rose-500 text-sm" onClick={endClass} />
+          <span className="text-neutral-500 text-xs group-hover:text-rose-500">
             End
           </span>
         </div>
       </div>
       <div>
-        <span className="text-neutral-500 text-sm font-thin">
+        <span className="text-neutral-500 text-xs font-thin">
           Participants: {totalParticipants}
         </span>
       </div>

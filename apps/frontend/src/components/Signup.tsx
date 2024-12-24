@@ -2,24 +2,29 @@ import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import { SignupType } from "@repo/validators/index";
+
 function Signup() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  async function signIn() {
-    await axios.post(
-      "http://localhost:3000/api/v1/signup",
-      {
-        email,
-        username,
-        password,
-      },
-      {
+
+  async function signUp() {
+    const body: SignupType = {
+      username,
+      password,
+      email,
+    };
+
+    try {
+      await axios.post("http://localhost:3000/api/v1/signup", body, {
         withCredentials: true,
-      }
-    );
-    navigate("/signin");
+      });
+      navigate("/signin");
+    } catch (err) {
+      console.log(err);
+    }
   }
   return (
     <div className="flex flex-col gap-10 p-4 min-w-96">
@@ -45,7 +50,7 @@ function Signup() {
           className="px-4 py-2 rounded-md bg-neutral-900 border border-neutral-600 text-neutral-400 font-thin"
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button className="bg-violet-400 px-4 py-2 rounded-md" onClick={signIn}>
+        <button className="bg-violet-400 px-4 py-2 rounded-md" onClick={signUp}>
           Sign Up
         </button>
         <div className="flex gap-2 font-thin  justify-center">

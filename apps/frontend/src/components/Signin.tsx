@@ -4,24 +4,33 @@ import { useSetRecoilState } from "recoil";
 import { userRole } from "../recoil";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import { SigninType } from "@repo/validators/index";
+
 function Signin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const setUserRole = useSetRecoilState(userRole);
   const navigate = useNavigate();
+
   async function signIn() {
-    const res = await axios.post(
-      "http://localhost:3000/api/v1/signin",
-      {
-        username,
-        password,
-      },
-      {
-        withCredentials: true,
-      }
-    );
-    setUserRole(res.data.role);
-    navigate("/dashboard");
+    const body: SigninType = {
+      username,
+      password,
+    };
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/v1/signin",
+        body,
+        {
+          withCredentials: true,
+        }
+      );
+      setUserRole(res.data.role);
+      navigate("/dashboard/all-classes");
+    } catch (err) {
+      console.log(err);
+    }
   }
   return (
     <div className="flex flex-col gap-10 p-4 min-w-96">

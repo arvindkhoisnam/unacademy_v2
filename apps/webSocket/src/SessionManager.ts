@@ -1,4 +1,5 @@
 import { User } from "./User";
+import { producer } from ".";
 
 export class SessionManager {
   static instance: SessionManager;
@@ -39,6 +40,20 @@ export class SessionManager {
     });
   }
   imageLoad(sessionId: string, urls: string[]) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "image-open",
+            imgUrl: urls,
+            currPage: 0,
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(
@@ -47,7 +62,77 @@ export class SessionManager {
       }
     });
   }
+  imageNextPage(sessionId: string, currPage: number, urls: string[]) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "image-open",
+            imgUrl: urls,
+            currPage: currPage,
+          }),
+        },
+      ],
+    });
+    this.sessions.get(sessionId)?.forEach((user) => {
+      if (user.userRole !== "admin") {
+        user.socket.send(
+          JSON.stringify({
+            event: "image-next-page",
+            payload: {
+              currPage,
+            },
+          })
+        );
+      }
+    });
+  }
+  imagePrevPage(sessionId: string, currPage: number, urls: string[]) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "image-open",
+            imgUrl: urls,
+            currPage: currPage,
+          }),
+        },
+      ],
+    });
+    this.sessions.get(sessionId)?.forEach((user) => {
+      if (user.userRole !== "admin") {
+        user.socket.send(
+          JSON.stringify({
+            event: "image-prev-page",
+            payload: {
+              currPage,
+            },
+          })
+        );
+      }
+    });
+  }
   imageClose(sessionId: string) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "image-close",
+            imgUrl: [],
+            currPage: 0,
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(JSON.stringify({ event: "image-close" }));
@@ -55,6 +140,18 @@ export class SessionManager {
     });
   }
   whiteBoardOpen(sessionId: string) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "board-open",
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(JSON.stringify({ event: "whiteBoard-open" }));
@@ -62,13 +159,54 @@ export class SessionManager {
     });
   }
   whiteBoardClose(sessionId: string) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "board-close",
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(JSON.stringify({ event: "whiteBoard-close" }));
       }
     });
   }
-  startWhiteBoard(sessionId: string, x: string, y: string) {
+  whiteBoardDraw(sessionId: string) {
+    this.sessions.get(sessionId)?.forEach((user) => {
+      if (user.userRole !== "admin") {
+        user.socket.send(JSON.stringify({ event: "whiteBoard-draw" }));
+      }
+    });
+  }
+  startWhiteBoard(
+    sessionId: string,
+    x: string,
+    y: string,
+    height: string,
+    width: string
+  ) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "mouse-move",
+            x: x,
+            y: y,
+            adminHeight: height,
+            adminWidth: width,
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(
@@ -77,13 +215,37 @@ export class SessionManager {
             payload: {
               x: x,
               y: y,
+              adminHeight: height,
+              adminWidth: width,
             },
           })
         );
       }
     });
   }
-  moveWhiteBoard(sessionId: string, x: string, y: string) {
+  moveWhiteBoard(
+    sessionId: string,
+    x: string,
+    y: string,
+    height: string,
+    width: string
+  ) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "mouse-move",
+            x: x,
+            y: y,
+            adminHeight: height,
+            adminWidth: width,
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(
@@ -92,10 +254,48 @@ export class SessionManager {
             payload: {
               x: x,
               y: y,
+              adminHeight: height,
+              adminWidth: width,
             },
           })
         );
       }
+    });
+  }
+  whiteBoardColorChange(sessionId: string, color: string) {
+    this.sessions.get(sessionId)?.forEach((user) => {
+      if (user.userRole !== "admin") {
+        user.socket.send(
+          JSON.stringify({
+            event: "whiteBoard-color-change",
+            payload: {
+              strokeStyle: color,
+            },
+          })
+        );
+      }
+    });
+  }
+  whiteBoardErase(sessionId: string) {
+    this.sessions.get(sessionId)?.forEach((user) => {
+      if (user.userRole !== "admin") {
+        user.socket.send(JSON.stringify({ event: "whiteBoard-erase" }));
+      }
+    });
+  }
+  whiteBoardClear(sessionId: string) {
+    this.sessions.get(sessionId)?.forEach((user) => {
+      if (user.userRole !== "admin") {
+        user.socket.send(JSON.stringify({ event: "whiteBoard-clear" }));
+      }
+    });
+  }
+
+  message(sessionId: string, content: { user: string; text: string }) {
+    this.sessions.get(sessionId)?.forEach((user) => {
+      user.socket.send(
+        JSON.stringify({ event: "message", payload: { content: content } })
+      );
     });
   }
 }

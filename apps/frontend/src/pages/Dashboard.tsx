@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import { Outlet, useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import { currUser } from "../recoil";
 
 function Dashboard() {
-  const [currUser, setCurrUser] = useState("");
   const navigate = useNavigate();
+  const setCurrUser = useSetRecoilState(currUser);
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -24,10 +26,10 @@ function Dashboard() {
       }
     }
     fetchUser();
-  }, [navigate]);
+  }, [navigate, setCurrUser]);
   return (
     <div className="h-screen bg-neutral-950 grid grid-cols-6 p-4 gap-4">
-      <Sidebar currUser={currUser} />
+      <Sidebar />
       <Outlet />
     </div>
   );

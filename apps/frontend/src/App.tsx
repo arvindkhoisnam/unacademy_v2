@@ -6,6 +6,7 @@ import AllClasses from "./pages/AllClasses";
 import Session from "./pages/Session";
 import SigninPage from "./pages/SigninPage";
 import SignupPage from "./pages/SignupPage";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />}>
             <Route path="/dashboard/admin" element={<Admin />} />
             <Route path="/dashboard/all-classes" element={<AllClasses />} />
+            <Route path="/dashboard/profile" element={<Profile />} />
           </Route>
           <Route path="/session/:sessionId" element={<Session />} />
         </Routes>

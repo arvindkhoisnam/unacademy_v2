@@ -1,30 +1,45 @@
 import { GrNext, GrPrevious } from "react-icons/gr";
-import { imageUrls, socket, toDisplay } from "../recoil";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { SetStateAction } from "react";
+import { imageCurrPage, imageUrls, socket, toDisplay } from "../recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useParams } from "react-router-dom";
 
-function SlideControls({
-  currPage,
-  setCurrPage,
-}: {
-  currPage: number;
-  setCurrPage: React.Dispatch<SetStateAction<number>>;
-}) {
+function SlideControls() {
   const ImageUrls = useRecoilValue(imageUrls);
   const setToDisplay = useSetRecoilState(toDisplay);
   const Socket = useRecoilValue(socket);
   const { sessionId } = useParams();
+  const [currPage, setCurrPage] = useRecoilState(imageCurrPage);
   function nextPage() {
     if (currPage < ImageUrls.length - 1) {
       setCurrPage((currPage) => currPage + 1);
+      Socket?.send(
+        JSON.stringify({
+          event: "image-next-page",
+          payload: {
+            sessionId: sessionId,
+            currPage: currPage + 1,
+            imgUrl: ImageUrls,
+          },
+        })
+      );
     }
   }
   function prevPage() {
     if (currPage > 0) {
       setCurrPage((currPage) => currPage - 1);
+      Socket?.send(
+        JSON.stringify({
+          event: "image-prev-page",
+          payload: {
+            sessionId: sessionId,
+            currPage: currPage - 1,
+            imgUrl: ImageUrls,
+          },
+        })
+      );
     }
   }
+
   return (
     <div className="p-2 flex justify-between gap-2">
       <div className="flex gap-4 items-center">
@@ -38,14 +53,14 @@ function SlideControls({
         />
       </div>
       <div className="flex gap-4 items-center">
-        <button className="px-2 py-1 rounded-lg bg-violet-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-sm">
+        <button className="px-2 py-1 rounded-lg bg-violet-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-[10px]">
           annotate
         </button>
-        <span className="text-violet-500">
+        <span className="text-violet-500 text-xs">
           {currPage + 1}/{ImageUrls.length}
         </span>
         <button
-          className="px-2 py-1 rounded-lg bg-rose-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-sm"
+          className="px-2 py-1 rounded-lg bg-rose-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-[10px]"
           onClick={() => {
             setToDisplay("video");
             Socket?.send(

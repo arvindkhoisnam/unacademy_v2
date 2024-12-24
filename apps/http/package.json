@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@repo/db": "*",
+    "@repo/validators": "*",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",

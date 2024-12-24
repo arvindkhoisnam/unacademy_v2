@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import { sessionRoute } from "./session";
 import e from "express";
 import { userMiddleware } from "../middleware/user";
+import { SignupCreds, SigninCreds } from "@repo/validators/index";
+
 require("dotenv").config();
 
 const route = express.Router();
@@ -15,6 +17,12 @@ route.use("/session", sessionRoute);
 route.post("/signup", async (req, res) => {
   const { username, password, email } = req.body;
 
+  const validCreds = SignupCreds.safeParse({ username, password, email });
+
+  if (!validCreds.success) {
+    res.status(400).json({ message: "Invalid credentials." });
+    return;
+  }
   const hashedPassword = bcrypt.hashSync(password, 10);
   const newUser = await db.user.create({
     data: {
@@ -35,6 +43,11 @@ route.post("/signup", async (req, res) => {
 route.post("/signin", async (req, res) => {
   const { username, password } = req.body;
 
+  const validCreds = SigninCreds.safeParse({ username, password });
+  if (!validCreds.success) {
+    res.status(400).json({ message: "Invalid credentials." });
+    return;
+  }
   try {
     const userFound = await db.user.findUnique({ where: { username } });
 

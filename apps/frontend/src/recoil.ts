@@ -4,6 +4,11 @@ const userRole = atom({
   key: "userRole",
   default: "",
 });
+
+const currUser = atom({
+  key: "currUser",
+  default: "",
+});
 const sessionTitle = atom({
   key: "sessionTitle",
   default: "",
@@ -24,6 +29,11 @@ const imageUrls = atom<string[]>({
   default: [],
 });
 
+const imageCurrPage = atom({
+  key: "imageCurrPage",
+  default: 0,
+});
+
 const toDisplay = atom<"video" | "image" | "board">({
   key: "toDisplay",
   default: "video",
@@ -33,6 +43,11 @@ const socket = atom<WebSocket | null>({
   key: "socket",
   default: null,
 });
+
+const whiteBoardState = atom({
+  key: "whiteBoardState",
+  default: [],
+});
 export {
   userRole,
   sessionTitle,
@@ -41,4 +56,7 @@ export {
   imageUrls,
   toDisplay,
   socket,
+  currUser,
+  imageCurrPage,
+  whiteBoardState,
 };
