@@ -1,12 +1,11 @@
 import express from "express";
 import { db } from "@repo/db/db";
-import bcrypt from "bcryptjs";
-import { adminMiddleware } from "../middleware/admin";
 import jwt from "jsonwebtoken";
 import { sessionRoute } from "./session";
 import e from "express";
 import { userMiddleware } from "../middleware/user";
 import { SignupCreds, SigninCreds } from "@repo/validators/index";
+import bcrypt from "bcryptjs";
 
 require("dotenv").config();
 
@@ -72,6 +71,7 @@ route.post("/signin", async (req, res) => {
     res.status(200).json({
       message: "Successfully signed in.",
       role: userFound.role,
+      username: userFound.username,
     });
   } catch (err) {
     res

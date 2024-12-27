@@ -17,7 +17,7 @@ function Sidebar() {
     navigate("/signin");
   }
   return (
-    <div className="hidden lg:block relative h-full bg-neutral-900 col-span-1 rounded-xl p-2 min-w-44">
+    <div className="hidden lg:block relative h-full bg-neutral-900 col-span-1 p-2 min-w-44 border-r border-neutral-700">
       <div className="flex items-end gap-2 text-violet-400 justify-start p-4">
         <LiaSchoolSolid className="text-3xl md:text-3xl" />
         <span className="text-xl md:text-xl">LiveClasses</span>

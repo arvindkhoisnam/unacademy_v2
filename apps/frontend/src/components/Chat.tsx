@@ -14,7 +14,7 @@ function Chat() {
   const CurrUser = useRecoilValue(currUser);
 
   useEffect(() => {
-    function msgHandler(message) {
+    function msgHandler(message: MessageEvent) {
       const parsed = JSON.parse(message.data as unknown as string);
       if (parsed.event === "message") {
         setDisplayText((content) => [...content, parsed.payload.content]);

@@ -10,7 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { imageCurrPage, imageUrls, socket, toDisplay } from "../recoil";
-
+import { toast } from "react-toastify";
 function SessionControls({
   videoRoom,
   setVideoOff,
@@ -30,14 +30,17 @@ function SessionControls({
   const setToDisplay = useSetRecoilState(toDisplay);
   const Socket = useRecoilValue(socket);
   const setCurrPage = useSetRecoilState(imageCurrPage);
+
   useEffect(() => {
     videoRoom?.on(RoomEvent.ParticipantConnected, (participant) => {
       setTotalParticipants(videoRoom?.numParticipants);
-      alert(`${participant.identity} joined`);
+      // alert(`${participant.identity} joined`);
+      toast.info(`${participant.identity} joined`);
     });
     videoRoom?.on(RoomEvent.ParticipantDisconnected, (participant) => {
       setTotalParticipants(videoRoom?.numParticipants);
-      alert(`${participant.identity} left`);
+      // alert(`${participant.identity} left`);
+      toast.info(`${participant.identity} left`);
     });
   }, [videoRoom]);
 
@@ -92,9 +95,17 @@ function SessionControls({
       while (retries < maxRetries) {
         const pollData = await pollImageUrls();
         if (pollData) {
-          const uris = pollData.images.map((image) => image.url);
-          const sortedUrls = uris.sort((a, b) => {
-            const getNumber = (url) => {
+          console.log(pollData);
+          const uris = pollData.images.map(
+            (image: {
+              id: number;
+              session_Id: string;
+              taskId: string;
+              url: string;
+            }) => image.url
+          );
+          const sortedUrls = uris.sort((a: string, b: string) => {
+            const getNumber = (url: string) => {
               const match = url.match(/\.([\d]+)\.png/); // Match the number between "." and ".png"
               return match ? parseInt(match[1], 10) : 0; // Return the number or 0 if no match
             };
@@ -193,8 +204,7 @@ function SessionControls({
           <AiOutlineAudio
             className="text-sm"
             onClick={async () => {
-              // videoRoom?.localParticipant.setCameraEnabled(true);
-              await videoRoom?.localParticipant.setScreenShareEnabled(true);
+              // await videoRoom?.localParticipant.setScreenShareEnabled(true);
             }}
           />
           <span className="text-neutral-500 text-xs group-hover:text-violet-500">

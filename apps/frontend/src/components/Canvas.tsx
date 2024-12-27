@@ -20,7 +20,7 @@ function Canvas() {
 
   useEffect(() => {
     if (!Socket) return;
-    const handleMessage = (message: { data: unknown }) => {
+    const handleMessage = (message: MessageEvent) => {
       const parsed = JSON.parse(message.data as unknown as string);
       switch (parsed.event) {
         case "image-load":

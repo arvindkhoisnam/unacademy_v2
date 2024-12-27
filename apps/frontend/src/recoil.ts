@@ -44,7 +44,15 @@ const socket = atom<WebSocket | null>({
   default: null,
 });
 
-const whiteBoardState = atom({
+type boardState = {
+  adminHeight: number;
+  adminWidth: number;
+  currPage: number | null;
+  imgUrl: string | null;
+  x: number;
+  y: number;
+};
+const whiteBoardState = atom<boardState[]>({
   key: "whiteBoardState",
   default: [],
 });

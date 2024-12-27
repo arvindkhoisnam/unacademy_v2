@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useSetRecoilState } from "recoil";
-import { userRole } from "../recoil";
+import { currUser, userRole } from "../recoil";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { SigninType } from "@repo/validators/index";
@@ -10,6 +10,7 @@ function Signin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const setUserRole = useSetRecoilState(userRole);
+  const setCurrUser = useSetRecoilState(currUser);
   const navigate = useNavigate();
 
   async function signIn() {
@@ -27,6 +28,7 @@ function Signin() {
         }
       );
       setUserRole(res.data.role);
+      setCurrUser(res.data.username);
       navigate("/dashboard/all-classes");
     } catch (err) {
       console.log(err);

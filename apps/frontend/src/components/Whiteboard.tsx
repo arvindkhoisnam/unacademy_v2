@@ -58,7 +58,7 @@ function Whiteboard() {
       }
     }
 
-    function handleEvents(event) {
+    function handleEvents(event: MessageEvent) {
       const parsed = JSON.parse(event.data);
       const canvas = CanvasRef.current;
       const ctx = canvas?.getContext("2d");
@@ -114,7 +114,7 @@ function Whiteboard() {
     return () => {
       Socket?.removeEventListener("message", handleEvents);
     };
-  }, [Socket, setToDisplay, WhiteBoardState]);
+  }, [Socket, setToDisplay, WhiteBoardState, setWhiteBoardState]);
 
   function start(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     const canvas = CanvasRef.current;
@@ -123,7 +123,6 @@ function Whiteboard() {
 
     setIsDrawing(true);
     const { left, top, height, width } = canvas.getBoundingClientRect();
-    console.log(height, width);
     const x = e.clientX - left;
     const y = e.clientY - top;
     ctx.beginPath();
@@ -148,7 +147,6 @@ function Whiteboard() {
     const ctx = ContextRef.current;
     if (!canvas || !ctx) return;
     const { left, top, height, width } = canvas.getBoundingClientRect();
-    console.log(height, width);
     const x = e.clientX - left;
     const y = e.clientY - top;
     ctx.lineTo(x, y);

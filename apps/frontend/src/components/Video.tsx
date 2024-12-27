@@ -59,7 +59,7 @@ function Video({
   }, [sessionId, setVideoRoom, Role]);
 
   useEffect(() => {
-    function handleEvents(message) {
+    function handleEvents(message: MessageEvent) {
       if (!Socket) return;
       const parsed = JSON.parse(message.data as unknown as string);
       switch (parsed.event) {
