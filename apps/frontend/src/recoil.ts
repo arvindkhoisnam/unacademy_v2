@@ -9,6 +9,11 @@ const currUser = atom({
   key: "currUser",
   default: "",
 });
+
+const email = atom({
+  key: "email",
+  default: "",
+});
 const sessionTitle = atom({
   key: "sessionTitle",
   default: "",
@@ -51,13 +56,17 @@ type boardState = {
   imgUrl: string | null;
   x: number;
   y: number;
+  event: string;
+  stroke: string;
 };
 const whiteBoardState = atom<boardState[]>({
   key: "whiteBoardState",
   default: [],
 });
+
 export {
   userRole,
+  email,
   sessionTitle,
   videoToken,
   totalParticipants,

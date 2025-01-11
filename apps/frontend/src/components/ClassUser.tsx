@@ -7,13 +7,11 @@ import {
   sessionTitle,
   socket,
   toDisplay,
-  userRole,
   whiteBoardState,
 } from "../recoil";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 
 function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
-  const Role = useRecoilValue(userRole);
   const navigate = useNavigate();
   const setSessionTitle = useSetRecoilState(sessionTitle);
   const setSocket = useSetRecoilState(socket);
@@ -45,12 +43,10 @@ function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
     setSessionTitle(res.data.sessionTitle);
     const ws = new WebSocket("ws://localhost:3001");
     ws.onopen = () => {
-      console.log("connected to ws");
       ws.send(
         JSON.stringify({
           event: "join",
           payload: {
-            role: Role,
             sessionId: sessionId,
             jwtToken: res.data.jwtToken,
           },
@@ -61,20 +57,32 @@ function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
     navigate(`/session/${sessionId}`);
   }
   return (
-    <li className="border border-neutral-700 mb-2 px-4 py-2 flex justify-between items-center rounded-xl">
-      <div className="flex flex-col gap-3">
-        <span className="text-neutral-300 font-thin text-xs">{title}</span>
-        <div className="text-green-600 flex items-center gap-2 font-thin text-xs">
+    <li className="mb-2 px-4 py-3 rounded-xl bg-zinc-900 max-h-72 min-w-80">
+      <div className="flex justify-between mb-10 flex-wrap">
+        <span className="text-zinc-300 font-thin text-4xl tracking-tight">
+          {title}
+        </span>
+        <div
+          className={`flex items-center gap-2 font-thin text-lg tracking-tight text-blue-300`}
+        >
           <MdOnlinePrediction />
           <span>Active</span>
         </div>
       </div>
-      <button
-        onClick={() => joinSession()}
-        className="bg-neutral-300 px-3 py-1 rounded-lg text-neutral-950 font-thin text-xs"
-      >
-        Join
-      </button>
+      <p className="text-zinc-300 text-sm tracking-tight leading-5 font-thin mb-10">
+        <span className="text-blue-300">Description:</span> Lorem ipsum dolor
+        sit amet consectetur adipisicing elit. Sed autem non tenetur! Mollitia
+        illo aut voluptatum, quas, voluptas illum soluta nemo vel qui aperiam
+        ducimus incidunt minima, obcaecati ex! Hic.
+      </p>
+      <div className="flex w-full gap-2">
+        <button
+          onClick={joinSession}
+          className={`bg-blue-100 hover:bg-blue-200 py-3 rounded-lg text-neutral-950 font-thin cursor-pointer w-full text-sm`}
+        >
+          Join
+        </button>
+      </div>
     </li>
   );
 }

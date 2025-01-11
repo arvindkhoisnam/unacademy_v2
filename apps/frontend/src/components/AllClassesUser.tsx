@@ -13,14 +13,19 @@ function AllClassesUser() {
           withCredentials: true,
         }
       );
-      console.log(res.data);
       setSessions(res.data.allSessions);
     }
     fetchData();
   }, []);
   return (
-    <div className="p-6">
-      <ul className="h-96 overflow-y-scroll scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 scrollbar-thumb-rounded p-2">
+    <div className="p-6 relative">
+      {sessions.length === 0 && (
+        <p className="text-zinc-500 absolute top-1/2 left-1/2 -translate-x-1/2 text-sm font-thin">
+          No live classes at the moment. Please contact admin at {""}
+          <span className="text-blue-200">arvindkhoisnam23@gmail.com</span>
+        </p>
+      )}
+      <ul className="h-[40rem] overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-zinc-950 scrollbar-thumb-rounded p-2 grid grid-cols-3 gap-2">
         {sessions.map((session: SessionType, index) => (
           <ClassUser
             title={session.title}

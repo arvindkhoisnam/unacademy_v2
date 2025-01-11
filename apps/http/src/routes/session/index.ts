@@ -159,30 +159,10 @@ route.post("/:sessionId/join", userMiddleware, async (req, res) => {
       x: true,
       y: true,
       currPage: true,
+      event: true,
+      stroke: true,
     },
   });
-  // if (latestEvent?.event === "mouse-movement") {
-  //   const allMouseMovements = await db.currentRoomState.findMany({
-  //     where: {
-  //       session_Id: session.sessionId,
-  //       event: "mouse-movement",
-  //     },
-  //     orderBy: {
-  //       epoch: "asc", // Get events from the beginning
-  //     },
-  //   });
-
-  //   res.status(200).json({
-  //     message: "Session joined successfully.",
-  //     jwtToken,
-  //     sessionTitle: session.title,
-  //     currentState: {
-  //       state: latestEvent?.event,
-  //       payload: JSON.stringify(allMouseMovements),
-  //     },
-  //   });
-  //   return;
-  // }
   res.status(200).json({
     message: "Session joined successfully.",
     jwtToken,
@@ -244,4 +224,40 @@ route.get("/task/:taskId", adminMiddleware, async (req, res) => {
   }
 });
 
+route.get("/:sessionId/participants", adminMiddleware, async (req, res) => {
+  const { sessionId } = req.params;
+  if (!sessionId) {
+    return;
+  }
+  const participants = await svc.listParticipants(sessionId);
+  res.status(200).json({ participants });
+});
+route.post(
+  "/:sessionId/participant/remove",
+  adminMiddleware,
+  async (req, res) => {
+    const { sessionId } = req.params;
+    if (!sessionId) {
+      return;
+    }
+    const { identity } = req.body;
+    const removed = await svc.removeParticipant(sessionId, identity);
+    res.status(200).json({ removed });
+  }
+);
+route.get("/:sessionId/chat", userMiddleware, async (req, res) => {
+  const { sessionId } = req.params;
+  if (!sessionId) {
+    return;
+  }
+  const chat = await db.chat.findMany({
+    where: { session_Id: sessionId },
+    orderBy: { epoch: "asc" },
+    select: {
+      sender: true,
+      content: true,
+    },
+  });
+  res.status(200).json({ chat });
+});
 export { route as sessionRoute };

@@ -12,6 +12,7 @@ function Video({
 }) {
   const { sessionId } = useParams();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRoomRef = useRef<Room | null>(null);
   const Role = useRecoilValue(userRole);
   const setToDisplay = useSetRecoilState(toDisplay);
@@ -34,6 +35,8 @@ function Video({
       const p = newRoom.localParticipant;
       if (Role === "admin") {
         await p.setCameraEnabled(true);
+        await p.setMicrophoneEnabled(true);
+
         const videoTrack = p.getTrackPublication(Track.Source.Camera);
         if (videoTrack && videoTrack.videoTrack) {
           videoTrack.videoTrack.attach(videoRef.current as HTMLMediaElement);
@@ -43,15 +46,29 @@ function Video({
             source: Track.Source.Camera,
           });
         }
+        const audioTrack = p.getTrackPublication(Track.Source.Microphone);
+        if (audioTrack && audioTrack.audioTrack) {
+          audioTrack.audioTrack.attach(audioRef.current as HTMLAudioElement);
+          audioRef.current!.muted = true;
+          await newRoom.localParticipant.publishTrack(audioTrack.audioTrack, {
+            name: "audio",
+            simulcast: true,
+            source: Track.Source.Microphone,
+          });
+        }
       }
       newRoom.on(RoomEvent.TrackSubscribed, (track) => {
         if (track.kind === "video") {
           track.attach(videoRef.current as HTMLMediaElement);
         }
+        if (track.kind === "audio") {
+          track.attach(audioRef.current as HTMLAudioElement);
+        }
       });
     }
 
     startSession();
+
     return () => {
       newRoom.localParticipant.setCameraEnabled(false);
       newRoom.disconnect();
@@ -79,11 +96,12 @@ function Video({
       Socket?.removeEventListener("message", handleEvents);
     };
   }, [Socket, setToDisplay]);
+
   return (
-    <video
-      className="h-[90%] max-w-full bg-neutral-950 rounded-xl mb-1"
-      ref={videoRef}
-    />
+    <>
+      <video className="h-[85%] w-full bg-zinc-950 my-5" ref={videoRef} />
+      <audio ref={audioRef} />
+    </>
   );
 }
 

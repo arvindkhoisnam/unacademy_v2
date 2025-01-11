@@ -18,7 +18,7 @@ model User {
   id        String @id @unique @default(cuid())
   username  String @unique
   email     String @unique
-  password  String
+  password  String?
   role      Role @default(user)
 }
 
@@ -29,6 +29,7 @@ model Session {
   status     SessionStatus @default(inactive)
   images     Image[]
   events     CurrentRoomState[]
+  chats      Chat[]
 }
 model Image {
   id         Int @id @unique @default(autoincrement())
@@ -53,12 +54,23 @@ model Payload {
   epoch           BigInt
   imgUrl          Json?
   currPage        Int?
+  event           String?
+  stroke          String?
   x               Int?
   y               Int?
   adminHeight     Int?
   adminWidth      Int?
   currRoomState   CurrentRoomState @relation(fields: [currRoomStateId],references: [id])
   currRoomStateId String 
+}
+
+model Chat{
+  id         String @id @unique @default(cuid())
+  epoch      BigInt
+  sender     String
+  content    String
+  session    Session @relation(fields: [session_Id],references: [sessionId])
+  session_Id String
 }
 enum Role {
   admin

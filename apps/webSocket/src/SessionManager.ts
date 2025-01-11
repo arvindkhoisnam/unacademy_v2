@@ -178,6 +178,18 @@ export class SessionManager {
     });
   }
   whiteBoardDraw(sessionId: string) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "board-draw",
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(JSON.stringify({ event: "whiteBoard-draw" }));
@@ -263,6 +275,19 @@ export class SessionManager {
     });
   }
   whiteBoardColorChange(sessionId: string, color: string) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "board-color",
+            stroke: color,
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(
@@ -277,6 +302,18 @@ export class SessionManager {
     });
   }
   whiteBoardErase(sessionId: string) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "board-erase",
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(JSON.stringify({ event: "whiteBoard-erase" }));
@@ -284,6 +321,18 @@ export class SessionManager {
     });
   }
   whiteBoardClear(sessionId: string) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "board-clear",
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(JSON.stringify({ event: "whiteBoard-clear" }));
@@ -292,10 +341,37 @@ export class SessionManager {
   }
 
   message(sessionId: string, content: { user: string; text: string }) {
+    producer.send({
+      topic: "events",
+      messages: [
+        {
+          value: JSON.stringify({
+            sessionId: sessionId,
+            timeStamp: Date.now(),
+            event: "message",
+            sender: content.user,
+            content: content.text,
+          }),
+        },
+      ],
+    });
     this.sessions.get(sessionId)?.forEach((user) => {
       user.socket.send(
         JSON.stringify({ event: "message", payload: { content: content } })
       );
     });
+  }
+  removeParticipant(participant: string, sessionId: string) {
+    this.sessions.get(sessionId)?.find((p) => {
+      if (p.username === participant) {
+        p.socket.send(JSON.stringify({ event: "removed" }));
+      }
+    });
+    this.sessions.set(
+      sessionId,
+      this.sessions
+        .get(sessionId)
+        ?.filter((user) => user.username !== participant) || []
+    );
   }
 }

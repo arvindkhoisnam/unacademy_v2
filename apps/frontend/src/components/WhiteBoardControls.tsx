@@ -22,7 +22,7 @@ function WhiteBoardControls({
     <div className="p-2">
       <div className="flex gap-4 items-center justify-end">
         <button
-          className={`px-2 py-1 rounded-lg bg-violet-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-[10px] ${action === "draw" && "ring ring-offset-2 ring-violet-800"}`}
+          className={`px-2 py-1 rounded bg-blue-200 text-zinc-900 hover:scale-105 font-thin text-[10px] ${action === "draw" && "ring-1 ring-offset-2"}`}
           onClick={() => {
             setAction("draw");
             setColor("black");
@@ -39,7 +39,7 @@ function WhiteBoardControls({
           draw
         </button>
         <button
-          className={`px-2 py-1 rounded-lg bg-violet-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-[10px] ${action === "erase" && "ring ring-offset-2 ring-violet-800"}`}
+          className={`px-2 py-1 rounded bg-blue-200 text-zinc-900 hover:scale-105 font-thin text-[10px] ${action === "erase" && "ring-1 ring-offset-1"}`}
           onClick={() => {
             setColor("#d4d4d4");
             setAction("erase");
@@ -57,7 +57,7 @@ function WhiteBoardControls({
         </button>
         <select
           disabled={action === "erase"}
-          className="px-2 py-1 font-thin text-[10px] rounded-lg"
+          className="px-2 py-1 font-thin text-[10px] rounded"
           onChange={(e) => {
             setColor(e.target.value);
             Socket?.send(
@@ -76,7 +76,7 @@ function WhiteBoardControls({
           <option value="blue">blue</option>
         </select>
         <button
-          className="px-2 py-1 rounded-lg bg-violet-800 hover:scale-105 text-neutral-300 font-thin text-[10px]"
+          className="px-2 py-1 rounded bg-blue-200 hover:scale-105 text-zinc-900 font-thin text-[10px]"
           onClick={() => {
             clearCanvas();
             Socket?.send(
@@ -92,7 +92,7 @@ function WhiteBoardControls({
           clear
         </button>
         <button
-          className="px-2 py-1 rounded-lg bg-rose-800 text-neutral-30 hover:scale-105 text-neutral-300 font-thin text-[10px]"
+          className="px-2 py-1 rounded bg-red-600 text-neutral-30 hover:scale-105 text-neutral-200 font-thin text-[10px]"
           onClick={() => {
             console.log("close");
             setToDisplay("video");

@@ -32,6 +32,7 @@ function Whiteboard() {
     }
 
     if (WhiteBoardState.length > 0) {
+      console.log(WhiteBoardState[0]);
       const canvas = CanvasRef.current;
       if (!canvas) return;
 
@@ -40,21 +41,95 @@ function Whiteboard() {
 
       const { height, width } = canvas.getBoundingClientRect();
 
-      const xTimes = width / WhiteBoardState[0].adminWidth;
-      const yTimes = height / WhiteBoardState[0].adminHeight;
-      let xStart = WhiteBoardState[0].x * xTimes;
-      let yStart = WhiteBoardState[0].y * yTimes;
-      for (let i = 1; i < WhiteBoardState.length; i++) {
-        const newX = xTimes * WhiteBoardState[i].x;
-        const newY = yTimes * WhiteBoardState[i].y;
-        ctx.beginPath();
-        ctx.moveTo(xStart, yStart);
-        ctx.lineTo(newX, newY);
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        xStart = newX;
-        yStart = newY;
+      let xStart: number;
+      let yStart: number;
+      let xTimes: number;
+      let yTimes: number;
+
+      if (WhiteBoardState[1].event === "board-color") {
+        xTimes = width / WhiteBoardState[2].adminWidth;
+        yTimes = height / WhiteBoardState[2].adminHeight;
+        xStart = WhiteBoardState[2].x * xTimes;
+        yStart = WhiteBoardState[2].y * yTimes;
+
+        let color = "";
+        let lineWidth = 2;
+        for (let i = 1; i < WhiteBoardState.length; i++) {
+          switch (WhiteBoardState[i].event) {
+            case "board-clear":
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              break;
+            case "board-erase":
+              color = "#d4d4d4";
+              lineWidth = 20;
+              break;
+            case "board-draw":
+              color = "black";
+              lineWidth = 2;
+              break;
+            case "board-color":
+              color = WhiteBoardState[i].stroke;
+              break;
+            case "mouse-move":
+              {
+                const newX = xTimes * WhiteBoardState[i].x;
+                const newY = yTimes * WhiteBoardState[i].y;
+                ctx.beginPath();
+                ctx.moveTo(xStart, yStart);
+                ctx.lineTo(newX, newY);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+                xStart = newX;
+                yStart = newY;
+              }
+              break;
+            default:
+              break;
+          }
+        }
+      } else {
+        xTimes = width / WhiteBoardState[1].adminWidth;
+        yTimes = height / WhiteBoardState[1].adminHeight;
+        xStart = WhiteBoardState[1].x * xTimes;
+        yStart = WhiteBoardState[1].y * yTimes;
+
+        let color = "black";
+        let lineWidth = 2;
+        for (let i = 1; i < WhiteBoardState.length; i++) {
+          switch (WhiteBoardState[i].event) {
+            case "board-clear":
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              break;
+            case "board-erase":
+              color = "#d4d4d4";
+              lineWidth = 20;
+              break;
+            case "board-draw":
+              color = "black";
+              lineWidth = 2;
+              break;
+            case "board-color":
+              color = WhiteBoardState[i].stroke;
+              break;
+            case "mouse-move":
+              {
+                const newX = xTimes * WhiteBoardState[i].x;
+                const newY = yTimes * WhiteBoardState[i].y;
+                ctx.beginPath();
+                ctx.moveTo(xStart, yStart);
+                ctx.lineTo(newX, newY);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+                xStart = newX;
+                yStart = newY;
+              }
+              break;
+            default:
+              break;
+          }
+        }
       }
     }
 
@@ -185,7 +260,7 @@ function Whiteboard() {
   };
 
   return (
-    <div className="h-[90%] mb-2">
+    <div className="h-[90%] ">
       <canvas
         className="h-[90%] w-full bg-neutral-300 rounded-xl cursor-crosshair mb-4"
         ref={CanvasRef}

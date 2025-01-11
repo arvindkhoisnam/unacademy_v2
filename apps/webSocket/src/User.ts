@@ -1,16 +1,18 @@
 import { WebSocket } from "ws";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { SessionManager } from "./SessionManager";
 
 export class User {
   id: string;
   userRole: "admin" | "user" | null;
   socket: WebSocket;
+  username: string | null;
 
   constructor(ws: WebSocket) {
     this.id = genId();
     this.userRole = null;
     this.socket = ws;
+    this.username = null;
     this.init();
   }
 
@@ -19,11 +21,15 @@ export class User {
       const parsed = JSON.parse(data as unknown as string);
       switch (parsed.event) {
         case "join":
-          const user = jwt.verify(parsed.payload.jwtToken, "jwtSecret");
+          const user = jwt.verify(
+            parsed.payload.jwtToken,
+            "jwtSecret"
+          ) as JwtPayload;
           if (!user) {
             this.socket.close();
           }
-          this.userRole = parsed.payload.role;
+          this.username = user.username;
+          this.userRole = user.role;
           SessionManager.getInstance().addUser(parsed.payload.sessionId, this);
           break;
         case "leave":
@@ -65,20 +71,17 @@ export class User {
           );
           break;
         case "whiteBoard-erase":
-          console.log("erase");
           SessionManager.getInstance().whiteBoardErase(
             parsed.payload.sessionId
           );
           break;
         case "whiteBoard-color-change":
-          console.log("change");
           SessionManager.getInstance().whiteBoardColorChange(
             parsed.payload.sessionId,
             parsed.payload.strokeStyle
           );
           break;
         case "whiteBoard-clear":
-          console.log("clear");
           SessionManager.getInstance().whiteBoardClear(
             parsed.payload.sessionId
           );
@@ -107,6 +110,11 @@ export class User {
           SessionManager.getInstance().message(
             parsed.payload.sessionId,
             parsed.payload.content
+          );
+        case "remove-participant":
+          SessionManager.getInstance().removeParticipant(
+            parsed.payload.participant,
+            parsed.payload.sessionId
           );
         default:
           break;

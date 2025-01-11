@@ -7,14 +7,10 @@ import Session from "./pages/Session";
 import SigninPage from "./pages/SigninPage";
 import SignupPage from "./pages/SignupPage";
 import Profile from "./pages/Profile";
-import { useRecoilValue } from "recoil";
-import { currUser, userRole } from "./recoil";
 import ProtectedRoutes from "./components/ProtectedRoutes";
+import AdminRoute from "./components/AdminRoute";
 
 export default function App() {
-  const User = useRecoilValue(currUser);
-  const Role = useRecoilValue(userRole);
-
   return (
     <BrowserRouter>
       <Routes>
@@ -24,20 +20,26 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoutes currUser={User}>
+            <ProtectedRoutes>
               <Dashboard />
             </ProtectedRoutes>
           }
         >
-          {Role === "admin" && <Route path="admin" element={<Admin />} />}
+          <Route
+            path="admin"
+            element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
+            }
+          />
           <Route path="all-classes" element={<AllClasses />} />
           <Route path="profile" element={<Profile />} />
         </Route>
-
         <Route
           path="/session/:sessionId"
           element={
-            <ProtectedRoutes currUser={User}>
+            <ProtectedRoutes>
               <Session />
             </ProtectedRoutes>
           }
