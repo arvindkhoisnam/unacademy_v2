@@ -7,12 +7,14 @@ export class User {
   userRole: "admin" | "user" | null;
   socket: WebSocket;
   username: string | null;
+  sessionId: string | null;
 
   constructor(ws: WebSocket) {
     this.id = genId();
     this.userRole = null;
     this.socket = ws;
     this.username = null;
+    this.sessionId = null;
     this.init();
   }
 
@@ -30,6 +32,8 @@ export class User {
           }
           this.username = user.username;
           this.userRole = user.role;
+          this.sessionId = parsed.payload.sessionId;
+          console.log(this);
           SessionManager.getInstance().addUser(parsed.payload.sessionId, this);
           break;
         case "leave":
@@ -111,15 +115,25 @@ export class User {
             parsed.payload.sessionId,
             parsed.payload.content
           );
+          break;
         case "remove-participant":
           SessionManager.getInstance().removeParticipant(
             parsed.payload.participant,
             parsed.payload.sessionId
           );
+          break;
+        case "end-class":
+          console.log("ending...");
+          SessionManager.getInstance().endClass(parsed.payload.sessionId);
+          break;
         default:
           break;
       }
     });
+  }
+  destroy() {
+    SessionManager.getInstance().userLeft(this.sessionId as string, this);
+    this.socket.close();
   }
 }
 function genId() {

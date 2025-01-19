@@ -17,18 +17,19 @@ function ParticipantControl() {
   const Socket = useRecoilValue(socket);
   async function getParticipants() {
     const res = await axios.get(
-      `http://localhost:3000/api/v1/session/${sessionId}/participants`,
+      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/participants`,
       { withCredentials: true }
     );
     const allParticipants = res.data.participants.map((p: Participant) => ({
       identity: p.identity,
+      //@ts-ignore
       isPublisher: p.permission.canPublish,
     }));
     setParticipants(allParticipants);
   }
   async function removeParticiapnt(participant: string) {
     await axios.post(
-      `http://localhost:3000/api/v1/session/${sessionId}/participant/remove`,
+      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/participant/remove`,
       {
         identity: participant,
       },

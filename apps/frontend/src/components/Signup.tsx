@@ -18,9 +18,14 @@ function Signup() {
     };
 
     try {
-      await axios.post("http://localhost:3000/api/v1/signup", body, {
-        withCredentials: true,
-      });
+      await axios.post(
+        "https://api-live-classes.arvindkhoisnam.com/api/v1/signup",
+        // "http://localhost:3000/api/v1/signup",
+        body,
+        {
+          withCredentials: true,
+        }
+      );
       navigate("/signin");
     } catch (err) {
       console.log(err);

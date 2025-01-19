@@ -17,7 +17,6 @@ function Session() {
   const Role = useRecoilValue(userRole);
   const ToDisplayValue = useRecoilValue(toDisplay);
   const Socket = useRecoilValue(socket);
-
   const navigate = useNavigate();
   useEffect(() => {
     if (!Socket) {
@@ -27,8 +26,12 @@ function Session() {
     function handleEvent(message: MessageEvent) {
       const parsed = JSON.parse(message.data as unknown as string);
       if (parsed.event === "removed") {
-        console.log("remove");
         alert("You have been removed by the admin.");
+        Socket?.close();
+        navigate("/dashboard/all-classes");
+      } else if (parsed.event === "class-ended") {
+        alert("Admin ended the class.");
+        Socket?.close();
         navigate("/dashboard/all-classes");
       }
     }
@@ -36,9 +39,9 @@ function Session() {
 
     return () => {
       Socket.removeEventListener("message", handleEvent);
+      // Socket.close();
     };
   }, [Socket, navigate]);
-
   return (
     <>
       <div className="bg-zinc-950 h-screen ">

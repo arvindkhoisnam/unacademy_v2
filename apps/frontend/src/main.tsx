@@ -7,9 +7,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const query = new QueryClient();
 createRoot(document.getElementById("root")!).render(
-  <RecoilRoot>
-    <QueryClientProvider client={query}>
-      <App />
-    </QueryClientProvider>
-  </RecoilRoot>
+  <StrictMode>
+    <RecoilRoot>
+      <QueryClientProvider client={query}>
+        <App />
+      </QueryClientProvider>
+    </RecoilRoot>
+  </StrictMode>
 );

@@ -22,17 +22,19 @@ function ClassAdmin({
 
   async function startSession() {
     const res = await axios.post(
-      `http://localhost:3000/api/v1/session/${sessionId}/start`,
+      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/start`,
+      // `http://localhost:3000/api/v1/session/${sessionId}/start`,
       {},
       {
         withCredentials: true,
       }
     );
+    console.log(res);
     setSessionTitle(res.data.sessionTitle);
-    // setVideoToken(res.data.token);
-    const ws = new WebSocket("ws://localhost:3001");
+    const ws = new WebSocket("wss://ws-api.arvindkhoisnam.com");
     ws.onopen = () => {
       console.log("connected to ws");
+      console.log(new Date().toTimeString());
       ws.send(
         JSON.stringify({
           event: "join",
@@ -43,6 +45,20 @@ function ClassAdmin({
           },
         })
       );
+      const heartbeat = setInterval(() => {
+        ws.send(
+          JSON.stringify({
+            event: "heartbeat",
+          })
+        );
+      }, 55000);
+
+      ws.onclose = (event) => {
+        console.log(event);
+        console.warn("WebSocket disconnected:", event.reason);
+        console.log(new Date().toTimeString());
+        clearInterval(heartbeat);
+      };
       setSocket(ws);
     };
     navigate(`/session/${sessionId}`);

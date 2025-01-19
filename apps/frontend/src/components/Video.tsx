@@ -28,11 +28,30 @@ function Video({
 
     async function startSession() {
       const res = await axios.get(
-        ` http://localhost:3000/api/v1/session/${sessionId}/videoToken`,
+        ` https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/videoToken`,
+        // ` http://localhost:3000/api/v1/session/${sessionId}/videoToken`,
         { withCredentials: true }
       );
-      await newRoom.connect("ws://localhost:7880", res.data.token);
+      const vidRes = await newRoom.connect(
+        "https://livekit-api.arvindkhoisnam.com",
+        res.data.token
+      );
+      console.log(vidRes);
       const p = newRoom.localParticipant;
+      // Also subscribe to tracks published before participant joined
+      newRoom.remoteParticipants.forEach((participant) => {
+        console.log(participant);
+        participant.trackPublications.forEach((publication) => {
+          console.log(publication);
+          publication.setSubscribed(true);
+          const track = publication.track;
+          if (track?.kind === "video") {
+            track.attach(videoRef.current as HTMLMediaElement);
+          } else if (track?.kind === "audio") {
+            track.attach(audioRef.current as HTMLAudioElement);
+          }
+        });
+      });
       if (Role === "admin") {
         await p.setCameraEnabled(true);
         await p.setMicrophoneEnabled(true);
@@ -56,15 +75,17 @@ function Video({
             source: Track.Source.Microphone,
           });
         }
+      } else {
+        newRoom.on(RoomEvent.TrackSubscribed, (track) => {
+          console.log("new sub");
+          if (track.kind === "video") {
+            track.attach(videoRef.current as HTMLMediaElement);
+          }
+          if (track.kind === "audio") {
+            track.attach(audioRef.current as HTMLAudioElement);
+          }
+        });
       }
-      newRoom.on(RoomEvent.TrackSubscribed, (track) => {
-        if (track.kind === "video") {
-          track.attach(videoRef.current as HTMLMediaElement);
-        }
-        if (track.kind === "audio") {
-          track.attach(audioRef.current as HTMLAudioElement);
-        }
-      });
     }
 
     startSession();

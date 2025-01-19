@@ -19,15 +19,16 @@ function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
   const setImageUrls = useSetRecoilState(imageUrls);
   const setCurrPage = useSetRecoilState(imageCurrPage);
   const setWhiteBoardState = useSetRecoilState(whiteBoardState);
-
   async function joinSession() {
     const res = await axios.post(
-      `http://localhost:3000/api/v1/session/${sessionId}/join`,
+      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/join`,
+      // `http://localhost:3000/api/v1/session/${sessionId}/join`,
       {},
       {
         withCredentials: true,
       }
     );
+    console.log(res.data.currentState.state);
     if (res.data.currentState.state === "image-open") {
       setImageUrls(res.data.currentState.payload[0].imgUrl);
       setCurrPage(res.data.currentState.payload[0].currPage);
@@ -41,7 +42,7 @@ function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
       setToDisplay("video");
     }
     setSessionTitle(res.data.sessionTitle);
-    const ws = new WebSocket("ws://localhost:3001");
+    const ws = new WebSocket("https://ws-api.arvindkhoisnam.com");
     ws.onopen = () => {
       ws.send(
         JSON.stringify({
@@ -52,6 +53,16 @@ function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
           },
         })
       );
+      const heartbeat = setInterval(() => {
+        ws.send(
+          JSON.stringify({
+            event: "heartbeat",
+          })
+        );
+      }, 55000);
+      ws.onclose = () => {
+        clearInterval(heartbeat);
+      };
       setSocket(ws);
     };
     navigate(`/session/${sessionId}`);

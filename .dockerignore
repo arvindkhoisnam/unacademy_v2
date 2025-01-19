@@ -1,0 +1,10 @@
+apps/worker_1/.env
+apps/worker_1/temp
+apps/worker_1/node_modules
+apps/worker_1/dist
+apps/http/.env
+apps/http/node_modules
+apps/http/dist
+apps/webSocket/node_modules
+apps/webSocket/dist
+

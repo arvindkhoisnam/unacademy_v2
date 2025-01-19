@@ -18,9 +18,10 @@ const Session = z.object({
   title: z.string(),
 });
 
-const UserSession = z.object({});
+// const UserSession = z.object({});
 type SignupType = z.infer<typeof SignupCreds>;
 type SigninType = z.infer<typeof SigninCreds>;
 type SessionType = z.infer<typeof Session>;
 
-export { SignupCreds, SignupType, SigninCreds, SigninType, SessionType };
+export { SignupCreds, SigninCreds };
+export type { SignupType, SigninType, SessionType };

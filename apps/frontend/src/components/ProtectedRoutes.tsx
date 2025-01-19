@@ -12,9 +12,16 @@ function ProtectedRoutes({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     async function init() {
-      const res = await axios.get("http://localhost:3000/api/v1/user", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "https://api-live-classes.arvindkhoisnam.com/api/v1/user",
+        // "http://localhost:3000/api/v1/user",
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       setUserRole(res.data.role);
       setCurrUser(res.data.username);
       setEmail(res.data.email);

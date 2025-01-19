@@ -1,7 +1,12 @@
 import { Kafka } from "kafkajs";
 import { db } from "@repo/db/db";
 
-const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
+// const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
+const kafka = new Kafka({
+  clientId: "my-app",
+  // brokers: ["kafka-container:9092"],
+  brokers: ["my-kafka.my-kafka.svc.cluster.local:9092"],
+});
 
 const consumer = kafka.consumer({ groupId: "events" });
 
@@ -34,6 +39,7 @@ const maxBatch = 20;
 
           switch (payload.event) {
             case "board-open":
+              console.log("board-open");
               await db.currentRoomState.create({
                 data: {
                   event: payload.event,
@@ -43,6 +49,7 @@ const maxBatch = 20;
               });
               break;
             case "board-close":
+              console.log("board-close");
               await db.currentRoomState.create({
                 data: {
                   event: payload.event,
@@ -52,6 +59,7 @@ const maxBatch = 20;
               });
               break;
             case "board-draw":
+              console.log("board-draw");
               const x = await db.currentRoomState.findFirst({
                 where: { event: "board-open" },
                 orderBy: {
@@ -67,6 +75,7 @@ const maxBatch = 20;
               });
               break;
             case "mouse-move":
+              console.log("board-mouse-move");
               const board = await db.currentRoomState.findFirst({
                 where: { event: "board-open" },
                 orderBy: {
@@ -89,6 +98,7 @@ const maxBatch = 20;
               }
               break;
             case "board-clear":
+              console.log("board-clear");
               const b = await db.currentRoomState.findFirst({
                 where: { event: "board-open" },
                 orderBy: {
@@ -104,6 +114,7 @@ const maxBatch = 20;
               });
               break;
             case "board-erase":
+              console.log("board-erase");
               const bo = await db.currentRoomState.findFirst({
                 where: { event: "board-open" },
                 orderBy: {
@@ -119,6 +130,7 @@ const maxBatch = 20;
               });
               break;
             case "board-color":
+              console.log("board-color");
               const bb = await db.currentRoomState.findFirst({
                 where: { event: "board-open" },
                 orderBy: {
@@ -135,6 +147,7 @@ const maxBatch = 20;
               });
               break;
             case "image-open":
+              console.log("image-open");
               const currRoomState = await db.currentRoomState.create({
                 data: {
                   event: payload.event,
@@ -153,6 +166,7 @@ const maxBatch = 20;
               });
               break;
             case "image-close":
+              console.log("image-close");
               await db.currentRoomState.create({
                 data: {
                   event: payload.event,
@@ -162,6 +176,7 @@ const maxBatch = 20;
               });
               break;
             case "message":
+              console.log("chat");
               await db.chat.create({
                 data: {
                   session_Id: payload.sessionId,

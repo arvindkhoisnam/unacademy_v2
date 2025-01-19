@@ -28,13 +28,24 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
   }, [videoRoom]);
 
   async function endClass() {
+    if (!Socket || !videoRoom) return;
     await axios.post(
-      `http://localhost:3000/api/v1/session/${sessionId}/end`,
+      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/end`,
+      // `http://localhost:3000/api/v1/session/${sessionId}/end`,
       {},
       { withCredentials: true }
     );
-    videoRoom?.localParticipant.setCameraEnabled(false);
-    videoRoom?.disconnect();
+    videoRoom.localParticipant.setCameraEnabled(false);
+    videoRoom.disconnect();
+    Socket.send(
+      JSON.stringify({
+        event: "end-class",
+        payload: {
+          sessionId: sessionId,
+        },
+      })
+    );
+    Socket.close();
     navigate(-1);
   }
 
@@ -48,18 +59,21 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
       newFile.append("file", pdfFile);
 
       const res = await axios.post(
-        `http://localhost:3000/api/v1/session/${sessionId}/slides/pdf`,
+        `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/slides/pdf`,
+        // `http://localhost:3000/api/v1/session/${sessionId}/slides/pdf`,
         newFile,
         { withCredentials: true }
       );
+      console.log(res);
       const taskId = res.data.taskId;
-      const maxRetries = 5;
+      const maxRetries = 20;
       let retries = 0;
 
       async function pollImageUrls() {
         try {
           const response = await axios.get(
-            `http://localhost:3000/api/v1/session/task/${taskId}`,
+            `https://api-live-classes.arvindkhoisnam.com/api/v1/session/task/${taskId}`,
+            // `http://localhost:3000/api/v1/session/task/${taskId}`,
             { withCredentials: true }
           );
           if (response.data.status === "completed") {

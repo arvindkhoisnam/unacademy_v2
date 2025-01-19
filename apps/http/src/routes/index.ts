@@ -2,7 +2,6 @@ import express from "express";
 import { db } from "@repo/db/db";
 import jwt from "jsonwebtoken";
 import { sessionRoute } from "./session";
-import e from "express";
 import { userMiddleware } from "../middleware/user";
 import { SignupCreds, SigninCreds } from "@repo/validators/index";
 import bcrypt from "bcryptjs";
@@ -72,7 +71,11 @@ route.post("/signin", async (req, res) => {
       },
       process.env.JWT_SECRET!
     );
-    res.cookie("token", token, { sameSite: "lax", httpOnly: true });
+    res.cookie("token", token, {
+      sameSite: "none",
+      httpOnly: true,
+      secure: true,
+    });
     res.status(200).json({
       message: "Successfully signed in.",
     });
@@ -104,7 +107,11 @@ route.get("/oauth/google", async (req, res) => {
         },
         process.env.JWT_SECRET!
       );
-      res.cookie("token", token, { sameSite: "lax", httpOnly: true });
+      res.cookie("token", token, {
+        sameSite: "none",
+        httpOnly: true,
+        secure: true,
+      });
       res.status(200).redirect("http://localhost:5173/dashboard/all-classes");
     } else {
       const newUser = await db.user.create({
@@ -121,7 +128,11 @@ route.get("/oauth/google", async (req, res) => {
         },
         process.env.JWT_SECRET!
       );
-      res.cookie("token", token, { sameSite: "lax", httpOnly: true });
+      res.cookie("token", token, {
+        sameSite: "none",
+        httpOnly: true,
+        secure: true,
+      });
       res.status(200).redirect("http://localhost:5173/dashboard/all-classes");
     }
   } catch (err) {

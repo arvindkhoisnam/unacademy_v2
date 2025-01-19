@@ -5,7 +5,12 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prisma-init": "cd packages/db && npx prisma migrate dev --name init && npx prisma generate && cd ../..",
+    "http-start": "npm run prisma-init && cd apps/http && npm run dev",
+    "ws-start": "cd apps/webSocket && npm run dev",
+    "w_1-start": "npm run prisma-init && cd apps/worker_1 && npm run dev",
+    "w_2-start": "npm run prisma-init && cd apps/worker_2 && npm run dev"
   },
   "devDependencies": {
     "prettier": "^3.2.5",

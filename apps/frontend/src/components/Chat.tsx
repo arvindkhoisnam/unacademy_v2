@@ -17,7 +17,7 @@ function Chat() {
   useEffect(() => {
     async function getChat() {
       const res = await axios.get(
-        `http://localhost:3000/api/v1/session/${sessionId}/chat`,
+        `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/chat`,
         { withCredentials: true }
       );
       const prevChat = res.data.chat.map(

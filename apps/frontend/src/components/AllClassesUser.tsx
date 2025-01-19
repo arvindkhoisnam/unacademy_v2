@@ -8,7 +8,8 @@ function AllClassesUser() {
   useEffect(() => {
     async function fetchData() {
       const res = await axios.get(
-        "http://localhost:3000/api/v1/session/all-active",
+        "https://api-live-classes.arvindkhoisnam.com/api/v1/session/all-active",
+        // "http://localhost:3000/api/v1/session/all-active",
         {
           withCredentials: true,
         }

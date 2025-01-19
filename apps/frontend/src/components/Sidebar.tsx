@@ -16,7 +16,7 @@ function Sidebar() {
   const navigate = useNavigate();
   async function logout() {
     await axios.post(
-      "http://localhost:3000/api/v1/logout",
+      "https://api-live-classes.arvindkhoisnam.com/api/v1/logout",
       {},
       { withCredentials: true }
     );

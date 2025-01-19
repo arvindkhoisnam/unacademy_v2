@@ -17,9 +17,14 @@ function Signin() {
     };
 
     try {
-      await axios.post("http://localhost:3000/api/v1/signin", body, {
-        withCredentials: true,
-      });
+      await axios.post(
+        "https://api-live-classes.arvindkhoisnam.com/api/v1/signin",
+        // "http://localhost:3000/api/v1/signin",
+        body,
+        {
+          withCredentials: true,
+        }
+      );
       navigate("/dashboard/all-classes");
     } catch (err) {
       console.log(err);

@@ -12,7 +12,8 @@ const devkey = process.env.LIVE_KIT_KEY;
 const secret = process.env.LIVE_KIT_SECRET;
 
 const route = express();
-const livekitHost = "http://localhost:7880";
+const livekitHost = "https://livekit-api.arvindkhoisnam.com";
+// const livekitHost = "http://localhost:7880";
 const svc = new RoomServiceClient(livekitHost, devkey, secret);
 
 async function adminVideoToken(roomName: string, participantName: string) {
@@ -81,7 +82,6 @@ route.post("/:sessionId/start", adminMiddleware, async (req, res) => {
     where: { sessionId: sessionId },
     data: { status: "active" },
   });
-
   const opts = {
     name: sessionId,
     emptyTimeout: 10 * 60,
@@ -90,7 +90,6 @@ route.post("/:sessionId/start", adminMiddleware, async (req, res) => {
     canSubscribe: true,
   };
   const room = await svc.createRoom(opts);
-
   res.status(200).json({
     message: "Session started successfully.",
     jwtToken,

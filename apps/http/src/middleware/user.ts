@@ -10,6 +10,7 @@ export function userMiddleware(
 ) {
   const cookie = req.cookies;
   const token = cookie.token;
+
   if (!token) {
     res.status(403).json({ message: "Unauthorized" });
     return;

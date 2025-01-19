@@ -22,7 +22,7 @@ function AllClassAdmin() {
       <h2 className="text-blue-200 text-lg font-thin text-start mb-4">
         All Sessions
       </h2>
-      <ul className="h-[40rem] overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-zinc-950 scrollbar-thumb-rounded p-2 grid grid-cols-3 gap-2">
+      <ul className="overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-zinc-950 scrollbar-thumb-rounded p-2 grid grid-cols-3 gap-2">
         {sessions.length &&
           sessions.map((session: SessionType, index) => (
             <ClassAdmin

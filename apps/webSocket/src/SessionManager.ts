@@ -24,15 +24,25 @@ export class SessionManager {
     } else {
       this.sessions.set(sessionId, [user]);
     }
+    console.log(`${user.username} joined`);
+    this.sessions
+      .get(sessionId)
+      ?.forEach((u) => console.log({ username: u.username, id: u.id }));
   }
 
   userLeft(sessionId: string, user: User) {
+    user.socket.close();
     this.sessions.set(
       sessionId,
       this.sessions.get(sessionId)?.filter((x) => x.id !== user.id) || []
     );
+    console.log(`${user.username} left`);
+    this.sessions
+      .get(sessionId)
+      ?.forEach((u) => console.log({ username: u.username, id: u.id }));
   }
   imageOpen(sessionId: string) {
+    console.log("image open");
     this.sessions.get(sessionId)?.forEach((user) => {
       if (user.userRole !== "admin") {
         user.socket.send(JSON.stringify({ event: "image-open" }));
@@ -40,6 +50,7 @@ export class SessionManager {
     });
   }
   imageLoad(sessionId: string, urls: string[]) {
+    console.log("image load");
     producer.send({
       topic: "events",
       messages: [
@@ -63,6 +74,7 @@ export class SessionManager {
     });
   }
   imageNextPage(sessionId: string, currPage: number, urls: string[]) {
+    console.log("next page");
     producer.send({
       topic: "events",
       messages: [
@@ -91,6 +103,7 @@ export class SessionManager {
     });
   }
   imagePrevPage(sessionId: string, currPage: number, urls: string[]) {
+    console.log("prev page");
     producer.send({
       topic: "events",
       messages: [
@@ -119,6 +132,7 @@ export class SessionManager {
     });
   }
   imageClose(sessionId: string) {
+    console.log("image close");
     producer.send({
       topic: "events",
       messages: [
@@ -140,6 +154,7 @@ export class SessionManager {
     });
   }
   whiteBoardOpen(sessionId: string) {
+    console.log("wb open");
     producer.send({
       topic: "events",
       messages: [
@@ -159,6 +174,7 @@ export class SessionManager {
     });
   }
   whiteBoardClose(sessionId: string) {
+    console.log("wb close");
     producer.send({
       topic: "events",
       messages: [
@@ -178,6 +194,7 @@ export class SessionManager {
     });
   }
   whiteBoardDraw(sessionId: string) {
+    console.log("wb draw");
     producer.send({
       topic: "events",
       messages: [
@@ -203,6 +220,7 @@ export class SessionManager {
     height: string,
     width: string
   ) {
+    console.log("wb draw start");
     producer.send({
       topic: "events",
       messages: [
@@ -242,6 +260,7 @@ export class SessionManager {
     height: string,
     width: string
   ) {
+    console.log("wb draw move");
     producer.send({
       topic: "events",
       messages: [
@@ -275,6 +294,7 @@ export class SessionManager {
     });
   }
   whiteBoardColorChange(sessionId: string, color: string) {
+    console.log("wb stroke change");
     producer.send({
       topic: "events",
       messages: [
@@ -302,6 +322,7 @@ export class SessionManager {
     });
   }
   whiteBoardErase(sessionId: string) {
+    console.log("wb erase");
     producer.send({
       topic: "events",
       messages: [
@@ -321,6 +342,7 @@ export class SessionManager {
     });
   }
   whiteBoardClear(sessionId: string) {
+    console.log("wb clear");
     producer.send({
       topic: "events",
       messages: [
@@ -341,6 +363,7 @@ export class SessionManager {
   }
 
   message(sessionId: string, content: { user: string; text: string }) {
+    console.log("chat");
     producer.send({
       topic: "events",
       messages: [
@@ -362,9 +385,12 @@ export class SessionManager {
     });
   }
   removeParticipant(participant: string, sessionId: string) {
+    console.log("remove parti");
+
     this.sessions.get(sessionId)?.find((p) => {
       if (p.username === participant) {
         p.socket.send(JSON.stringify({ event: "removed" }));
+        p.socket.close();
       }
     });
     this.sessions.set(
@@ -373,5 +399,16 @@ export class SessionManager {
         .get(sessionId)
         ?.filter((user) => user.username !== participant) || []
     );
+  }
+  endClass(sessionId: string) {
+    console.log("ended.");
+    this.sessions.get(sessionId)?.find((p) => {
+      if (p.userRole !== "admin") {
+        p.socket.send(JSON.stringify({ event: "class-ended" }));
+      }
+      p.socket.close();
+    });
+    this.sessions.set(sessionId, []);
+    console.log(this.sessions.get(sessionId));
   }
 }

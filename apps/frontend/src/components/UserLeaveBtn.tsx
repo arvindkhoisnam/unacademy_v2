@@ -14,8 +14,8 @@ function UserLeaveBtn({ videoRoom }: { videoRoom: Room | null }) {
   const Socket = useRecoilValue(socket);
   const { sessionId } = useParams();
   function leaveRoom() {
-    videoRoom?.disconnect();
-    Socket?.send(
+    if (!Socket || !videoRoom) return;
+    Socket.send(
       JSON.stringify({
         event: "leave",
         payload: {
@@ -23,6 +23,8 @@ function UserLeaveBtn({ videoRoom }: { videoRoom: Room | null }) {
         },
       })
     );
+    Socket.close();
+    videoRoom.disconnect();
     navigate(-1);
   }
   return (
