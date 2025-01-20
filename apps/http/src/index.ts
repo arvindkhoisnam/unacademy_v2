@@ -29,7 +29,7 @@ app.use(express.json());
 const allowedOrigins = [
   "http://localhost:5173",
   "http://192.168.29.143:5173",
-  "https://arvind-live-classes.netlify.appf ",
+  "https://arvind-live-classes.netlify.app",
 ];
 
 app.use(
@@ -46,7 +46,6 @@ app.use(
   })
 );
 
-// Handle preflight requests
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");

@@ -112,7 +112,11 @@ route.get("/oauth/google", async (req, res) => {
         httpOnly: true,
         secure: true,
       });
-      res.status(200).redirect("http://localhost:5173/dashboard/all-classes");
+      res
+        .status(200)
+        .redirect(
+          "https://arvind-live-classes.netlify.app/dashboard/all-classes"
+        );
     } else {
       const newUser = await db.user.create({
         data: {
@@ -133,7 +137,11 @@ route.get("/oauth/google", async (req, res) => {
         httpOnly: true,
         secure: true,
       });
-      res.status(200).redirect("http://localhost:5173/dashboard/all-classes");
+      res
+        .status(200)
+        .redirect(
+          "https://arvind-live-classes.netlify.app/dashboard/all-classes"
+        );
     }
   } catch (err) {
     console.log(err);
