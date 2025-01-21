@@ -5,7 +5,8 @@ import { sessionTitle, socket, userRole } from "../recoil";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import CheckHair from "./CheckHair";
-
+import { useToast } from "@/hooks/use-toast";
+import JoinPermission from "./JoinPermission";
 function ClassAdmin({
   title,
   status,
@@ -19,7 +20,7 @@ function ClassAdmin({
   const navigate = useNavigate();
   const setSessionTitle = useSetRecoilState(sessionTitle);
   const setSocket = useSetRecoilState(socket);
-
+  const { toast } = useToast();
   async function startSession() {
     const res = await axios.post(
       `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/start`,
@@ -58,6 +59,15 @@ function ClassAdmin({
         console.warn("WebSocket disconnected:", event.reason);
         console.log(new Date().toTimeString());
         clearInterval(heartbeat);
+      };
+      ws.onmessage = (message) => {
+        const parsed = JSON.parse(message.data as unknown as string);
+        // alert(parsed.user);
+        toast({
+          title: `${parsed.user} wants to join.`,
+          action: <JoinPermission Socket={ws} />,
+          duration: 100000000000,
+        });
       };
       setSocket(ws);
     };

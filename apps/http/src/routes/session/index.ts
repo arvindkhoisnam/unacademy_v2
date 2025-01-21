@@ -3,7 +3,7 @@ import { generateSessionId, generateTaskId } from "../../../utils/utils";
 import { db } from "@repo/db/db";
 import { adminMiddleware } from "../../middleware/admin";
 import multer from "multer";
-import { redisClient } from "../..";
+import { redisClient, redisPublisher, redisSubscriber } from "../..";
 import { RoomServiceClient, AccessToken } from "livekit-server-sdk";
 import { userMiddleware } from "../../middleware/user";
 require("dotenv").config();
@@ -121,6 +121,7 @@ route.get("/:sessionId/videoToken", userMiddleware, async (req, res) => {
 });
 
 route.post("/:sessionId/join", userMiddleware, async (req, res) => {
+  console.log("inside http");
   const { sessionId } = req.params;
   const jwtToken = req.jwtToken;
   const user = await db.user.findFirst({ where: { id: req.userId } });
@@ -138,39 +139,98 @@ route.post("/:sessionId/join", userMiddleware, async (req, res) => {
     return;
   }
 
-  const latestEvent = await db.currentRoomState.findFirst({
-    where: {
-      session_Id: session.sessionId,
-    },
-    orderBy: {
-      epoch: "desc",
-    },
-  });
-  const correspondingPayload = await db.payload.findMany({
-    where: { currRoomStateId: latestEvent?.id },
-    orderBy: {
-      epoch: "asc",
-    },
-    select: {
-      adminHeight: true,
-      adminWidth: true,
-      imgUrl: true,
-      x: true,
-      y: true,
-      currPage: true,
-      event: true,
-      stroke: true,
-    },
-  });
-  res.status(200).json({
-    message: "Session joined successfully.",
-    jwtToken,
-    sessionTitle: session.title,
-    currentState: {
-      state: latestEvent?.event,
-      payload: correspondingPayload,
-    },
-  });
+  new Promise((resolve, reject) => {
+    redisSubscriber.subscribe("join-response", (message) => {
+      const parsed = JSON.parse(message);
+
+      console.log(parsed);
+      if (parsed.permission === "allowed") {
+        console.log("allowing...");
+        resolve("");
+      } else {
+        console.log("denying...");
+        reject();
+      }
+    });
+
+    console.log("Publishing...");
+    redisPublisher.publish(
+      "join-request",
+      JSON.stringify({ username: user.username, sessionId: sessionId })
+    );
+  })
+    .then(async () => {
+      const latestEvent = await db.currentRoomState.findFirst({
+        where: {
+          session_Id: session.sessionId,
+        },
+        orderBy: {
+          epoch: "desc",
+        },
+      });
+      const correspondingPayload = await db.payload.findMany({
+        where: { currRoomStateId: latestEvent?.id },
+        orderBy: {
+          epoch: "asc",
+        },
+        select: {
+          adminHeight: true,
+          adminWidth: true,
+          imgUrl: true,
+          x: true,
+          y: true,
+          currPage: true,
+          event: true,
+          stroke: true,
+        },
+      });
+      res.status(200).json({
+        message: "Session joined successfully.",
+        jwtToken,
+        sessionTitle: session.title,
+        currentState: {
+          state: latestEvent?.event,
+          payload: correspondingPayload,
+        },
+      });
+    })
+    .catch(() => {
+      res.status(403).json({ message: "Admin did not allow you to join." });
+    });
+
+  // const latestEvent = await db.currentRoomState.findFirst({
+  //   where: {
+  //     session_Id: session.sessionId,
+  //   },
+  //   orderBy: {
+  //     epoch: "desc",
+  //   },
+  // });
+  // const correspondingPayload = await db.payload.findMany({
+  //   where: { currRoomStateId: latestEvent?.id },
+  //   orderBy: {
+  //     epoch: "asc",
+  //   },
+  //   select: {
+  //     adminHeight: true,
+  //     adminWidth: true,
+  //     imgUrl: true,
+  //     x: true,
+  //     y: true,
+  //     currPage: true,
+  //     event: true,
+  //     stroke: true,
+  //   },
+  // });
+  // res.status(200).json({
+  //   message: "Session joined successfully.",
+  //   jwtToken,
+  //   sessionTitle: session.title,
+  //   currentState: {
+  //     state: latestEvent?.event,
+  //     payload: correspondingPayload,
+  //   },
+  // });
 });
 
 route.post("/:sessionId/end", adminMiddleware, async (req, res) => {

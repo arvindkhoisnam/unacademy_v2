@@ -7,12 +7,23 @@ import cookieParser from "cookie-parser";
 export const redisClient = createClient({
   url: "redis://redis-container:6379",
 });
+export const redisPublisher = createClient({
+  url: "redis://redis-container:6379",
+});
+export const redisSubscriber = createClient({
+  url: "redis://redis-container:6379",
+});
 
 (async () => {
   await redisClient.connect();
+  await redisPublisher.connect();
+  await redisSubscriber.connect();
   redisClient.on("error", (err) => console.log("Redis Client Error", err));
   console.log("Redis connected");
+  console.log("Redis pub connected");
+  console.log("Redis sub connected");
 })();
+
 const app = express();
 app.use(express.json());
 // app.use(
@@ -34,6 +45,7 @@ const allowedOrigins = [
 
 app.use(
   cors({
+    credentials: true,
     origin: (origin, callback) => {
       console.log(origin);
       if (allowedOrigins.includes(origin!) || !origin) {
@@ -42,7 +54,6 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true,
   })
 );
 

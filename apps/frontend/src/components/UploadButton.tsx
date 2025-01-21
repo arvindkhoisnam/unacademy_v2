@@ -6,9 +6,11 @@ import { useSetRecoilState } from "recoil";
 function UploadButton({
   setToDisplay,
   uploadPdf,
+  loading,
 }: {
   setToDisplay: React.Dispatch<SetStateAction<"video" | "image" | "board">>;
   uploadPdf: () => Promise<void>;
+  loading: boolean;
 }) {
   const setCurrPage = useSetRecoilState(imageCurrPage);
   return (
@@ -21,8 +23,10 @@ function UploadButton({
           setToDisplay("image");
         }}
       />
-      <span className="text-zinc-600 text-xs group-hover:text-blue-200 font-thin">
-        Upload
+      <span
+        className={` text-xs group-hover:text-blue-200 font-thin ${loading ? "text-blue-300" : "text-zinc-600"}`}
+      >
+        {loading ? "Uploading..." : "Upload"}
       </span>
     </div>
   );

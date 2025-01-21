@@ -1,6 +1,7 @@
 import { WebSocket } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SessionManager } from "./SessionManager";
+import { redisPublisher } from ".";
 
 export class User {
   id: string;
@@ -125,6 +126,15 @@ export class User {
         case "end-class":
           console.log("ending...");
           SessionManager.getInstance().endClass(parsed.payload.sessionId);
+          break;
+        case "join-permission":
+          console.log(parsed.payload);
+          redisPublisher.publish(
+            "join-response",
+            JSON.stringify({
+              permission: parsed.payload,
+            })
+          );
           break;
         default:
           break;

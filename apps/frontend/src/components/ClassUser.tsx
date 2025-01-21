@@ -10,6 +10,7 @@ import {
   whiteBoardState,
 } from "../recoil";
 import { useSetRecoilState } from "recoil";
+import { useState } from "react";
 
 function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
   const navigate = useNavigate();
@@ -19,53 +20,67 @@ function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
   const setImageUrls = useSetRecoilState(imageUrls);
   const setCurrPage = useSetRecoilState(imageCurrPage);
   const setWhiteBoardState = useSetRecoilState(whiteBoardState);
+  const [loading, setLoading] = useState(false);
   async function joinSession() {
-    const res = await axios.post(
-      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/join`,
-      // `http://localhost:3000/api/v1/session/${sessionId}/join`,
-      {},
-      {
-        withCredentials: true,
-      }
-    );
-    console.log(res.data.currentState.state);
-    if (res.data.currentState.state === "image-open") {
-      setImageUrls(res.data.currentState.payload[0].imgUrl);
-      setCurrPage(res.data.currentState.payload[0].currPage);
-      setToDisplay("image");
-    } else if (res.data.currentState.state === "image-close") {
-      setToDisplay("video");
-    } else if (res.data.currentState.state === "board-open") {
-      setWhiteBoardState(res.data.currentState.payload);
-      setToDisplay("board");
-    } else if (res.data.currentState.state === "board-close") {
-      setToDisplay("video");
-    }
-    setSessionTitle(res.data.sessionTitle);
-    const ws = new WebSocket("https://ws-api.arvindkhoisnam.com");
-    ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          event: "join",
-          payload: {
-            sessionId: sessionId,
-            jwtToken: res.data.jwtToken,
-          },
-        })
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/join`,
+        // `http://localhost:3000/api/v1/session/${sessionId}/join`,
+        {},
+        {
+          withCredentials: true,
+        }
       );
-      const heartbeat = setInterval(() => {
+
+      if (res.data.currentState.state === "image-open") {
+        setImageUrls(res.data.currentState.payload[0].imgUrl);
+        setCurrPage(res.data.currentState.payload[0].currPage);
+        setToDisplay("image");
+      } else if (res.data.currentState.state === "image-close") {
+        setToDisplay("video");
+      } else if (res.data.currentState.state === "board-open") {
+        setWhiteBoardState(res.data.currentState.payload);
+        setToDisplay("board");
+      } else if (res.data.currentState.state === "board-close") {
+        setToDisplay("video");
+      }
+      setSessionTitle(res.data.sessionTitle);
+      const ws = new WebSocket("https://ws-api.arvindkhoisnam.com");
+      ws.onopen = () => {
         ws.send(
           JSON.stringify({
-            event: "heartbeat",
+            event: "join",
+            payload: {
+              sessionId: sessionId,
+              jwtToken: res.data.jwtToken,
+            },
           })
         );
-      }, 55000);
-      ws.onclose = () => {
-        clearInterval(heartbeat);
+        const heartbeat = setInterval(() => {
+          ws.send(
+            JSON.stringify({
+              event: "heartbeat",
+            })
+          );
+        }, 55000);
+        ws.onclose = () => {
+          clearInterval(heartbeat);
+        };
+        setSocket(ws);
       };
-      setSocket(ws);
-    };
-    navigate(`/session/${sessionId}`);
+      setLoading(false);
+      navigate(`/session/${sessionId}`);
+    } catch (err) {
+      setLoading(false);
+      if (axios.isAxiosError(err)) {
+        if (err.status === 403) {
+          alert("Acces denied by admin");
+        }
+      } else {
+        throw new Error(String(err));
+      }
+    }
   }
   return (
     <li className="mb-2 px-4 py-3 rounded-xl bg-zinc-900 max-h-72 min-w-80">
@@ -89,9 +104,9 @@ function ClassUser({ title, sessionId }: { title: string; sessionId: string }) {
       <div className="flex w-full gap-2">
         <button
           onClick={joinSession}
-          className={`bg-blue-100 hover:bg-blue-200 py-3 rounded-lg text-neutral-950 font-thin cursor-pointer w-full text-sm`}
+          className={`bg-blue-100 hover:bg-blue-200 py-3 rounded-lg text-neutral-950 font-thin w-full text-sm ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
         >
-          Join
+          {loading ? "Joining..." : "Join"}
         </button>
       </div>
     </li>

@@ -17,7 +17,7 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
   const setImageUrls = useSetRecoilState(imageUrls);
   const setToDisplay = useSetRecoilState(toDisplay);
   const Socket = useRecoilValue(socket);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     videoRoom?.on(RoomEvent.ParticipantConnected, (participant) => {
       toast.info(`${participant.identity} joined`);
@@ -55,6 +55,7 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
     }
 
     try {
+      setLoading(true);
       const newFile = new FormData();
       newFile.append("file", pdfFile);
 
@@ -126,6 +127,7 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
               },
             })
           );
+          setLoading(false);
           return;
         }
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -143,7 +145,11 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
           type="file"
           className="p-1 bg-neutral-800 text-neutral-300 text-xs font-thin rounded-lg w-44"
         />
-        <UploadButton setToDisplay={setToDisplay} uploadPdf={uploadPdf} />
+        <UploadButton
+          setToDisplay={setToDisplay}
+          uploadPdf={uploadPdf}
+          loading={loading}
+        />
         <DrawButton
           setToDisplay={setToDisplay}
           Socket={Socket}
