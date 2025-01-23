@@ -62,12 +62,15 @@ function ClassAdmin({
       };
       ws.onmessage = (message) => {
         const parsed = JSON.parse(message.data as unknown as string);
-        // alert(parsed.user);
-        toast({
-          title: `${parsed.user} wants to join.`,
-          action: <JoinPermission Socket={ws} />,
-          duration: 100000000000,
-        });
+        if (parsed.event === "join-request") {
+          toast({
+            title: `${parsed.payload.user} wants to join.`,
+            action: (
+              <JoinPermission Socket={ws} uniqueId={parsed.payload.uniqueId} />
+            ),
+            duration: 100000000000,
+          });
+        }
       };
       setSocket(ws);
     };

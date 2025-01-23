@@ -411,4 +411,19 @@ export class SessionManager {
     this.sessions.set(sessionId, []);
     console.log(this.sessions.get(sessionId));
   }
+  joinRequest(sessionId: string, username: string, uniqueId: string) {
+    this.sessions.get(sessionId)?.forEach((u) => {
+      if (u.userRole === "admin") {
+        u.socket.send(
+          JSON.stringify({
+            event: "join-request",
+            payload: {
+              user: username,
+              uniqueId: uniqueId,
+            },
+          })
+        );
+      }
+    });
+  }
 }

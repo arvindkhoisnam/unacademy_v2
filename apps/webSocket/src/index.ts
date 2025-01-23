@@ -8,7 +8,6 @@ const wss = new WebSocketServer({ port: 3001 });
 // const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
 const kafka = new Kafka({
   clientId: "my-app",
-  // brokers: ["kafka-container:9092"],
   brokers: ["my-kafka.my-kafka.svc.cluster.local:9092"],
 });
 const redisSubscriber = createClient({
@@ -35,22 +34,22 @@ wss.on("connection", async (ws) => {
   await redisPublisher.connect();
   redisSubscriber.on("error", (err) => console.log("Redis pub Error", err));
   console.log("Redis connected");
-})();
-
-redisSubscriber.subscribe("join-request", (message) => {
-  const parsed = JSON.parse(message);
-  console.log(parsed);
-  SessionManager.getInstance()
-    .sessions.get(parsed.sessionId)
-    ?.forEach((u) => {
-      if (u.userRole === "admin") {
-        u.socket.send(
-          JSON.stringify({
-            user: parsed.username,
-          })
+})()
+  .then(async () => {
+    while (true) {
+      const res = await redisSubscriber.rPop("join-request");
+      if (res) {
+        const parsed = JSON.parse(res);
+        SessionManager.getInstance().joinRequest(
+          parsed.sessionId,
+          parsed.username,
+          parsed.uniqueId
         );
       }
-    });
-});
+    }
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 wss.on("listening", () => console.log("WebSocket running on port 3001"));
 export { producer, redisPublisher };

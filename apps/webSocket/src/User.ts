@@ -128,11 +128,10 @@ export class User {
           SessionManager.getInstance().endClass(parsed.payload.sessionId);
           break;
         case "join-permission":
-          console.log(parsed.payload);
           redisPublisher.publish(
-            "join-response",
+            parsed.payload.uniqueId,
             JSON.stringify({
-              permission: parsed.payload,
+              permission: parsed.payload.status,
             })
           );
           break;
