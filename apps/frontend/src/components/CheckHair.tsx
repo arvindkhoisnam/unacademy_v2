@@ -32,11 +32,11 @@ function CheckHair({ startSession }: { startSession: () => Promise<void> }) {
     };
   }, [cam, mic]);
   return (
-    <div>
-      <DialogTitle className="text-2xl font-thin text-zinc-200 mb-5">
+    <div className="">
+      <DialogTitle className="text-2xl font-thin text-zinc-200 md:mb-5">
         Check camera and mic
       </DialogTitle>
-      <video ref={vidRef} className="h-72 w-96 bg-zinc-900" />
+      <video ref={vidRef} className="h-44 w-72 md:h-72 md:w-96 bg-zinc-900" />
       <div className="flex justify-center items-center gap-2 mb-2">
         {!cam ? (
           <div className="hover:bg-zinc-700 p-2 rounded-full cursor-pointer text-zinc-300">

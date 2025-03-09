@@ -29,7 +29,7 @@ function CreateSess() {
         <IoAdd size={20} />
         Create Session
       </DialogTrigger>
-      <DialogContent className="bg-zinc-950 border-zinc-700">
+      <DialogContent className="bg-zinc-950 border-zinc-700 w-72 md:w-full rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-thin text-zinc-200 mb-5">
             Create a Session

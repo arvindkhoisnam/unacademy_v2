@@ -5,13 +5,16 @@ import { createClient } from "redis";
 import cookieParser from "cookie-parser";
 
 export const redisClient = createClient({
-  url: "redis://redis-container:6379",
+  // url: "redis://redis-container:6379",
+  url: "redis://localhost:6379",
 });
 export const redisPublisher = createClient({
-  url: "redis://redis-container:6379",
+  // url: "redis://redis-container:6379",
+  url: "redis://localhost:6379",
 });
 export const redisSubscriber = createClient({
-  url: "redis://redis-container:6379",
+  // url: "redis://redis-container:6379",
+  url: "redis://localhost:6379",
 });
 
 (async () => {

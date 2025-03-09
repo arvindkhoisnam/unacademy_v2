@@ -13,8 +13,8 @@ const devkey = process.env.LIVE_KIT_KEY;
 const secret = process.env.LIVE_KIT_SECRET;
 
 const route = express();
-const livekitHost = "https://livekit-api.arvindkhoisnam.com";
-// const livekitHost = "http://localhost:7880";
+// const livekitHost = "https://livekit-api.arvindkhoisnam.com";
+const livekitHost = "http://localhost:7880";
 const svc = new RoomServiceClient(livekitHost, devkey, secret);
 
 async function adminVideoToken(roomName: string, participantName: string) {
@@ -122,7 +122,6 @@ route.get("/:sessionId/videoToken", userMiddleware, async (req, res) => {
 });
 
 route.post("/:sessionId/join", userMiddleware, async (req, res) => {
-  console.log("inside http");
   const { sessionId } = req.params;
   const jwtToken = req.jwtToken;
   const user = await db.user.findFirst({ where: { id: req.userId } });

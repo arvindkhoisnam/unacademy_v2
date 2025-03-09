@@ -17,19 +17,20 @@ function ParticipantControl() {
   const Socket = useRecoilValue(socket);
   async function getParticipants() {
     const res = await axios.get(
-      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/participants`,
+      `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/session/${sessionId}/participants`,
       { withCredentials: true }
     );
     const allParticipants = res.data.participants.map((p: Participant) => ({
       identity: p.identity,
-      //@ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-expect-error
       isPublisher: p.permission.canPublish,
     }));
     setParticipants(allParticipants);
   }
   async function removeParticiapnt(participant: string) {
     await axios.post(
-      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/participant/remove`,
+      `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/session/${sessionId}/participant/remove`,
       {
         identity: participant,
       },
@@ -56,7 +57,7 @@ function ParticipantControl() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between bg-zinc-300 font-thin h-8"
+          className="w-[200px] justify-between bg-zinc-300 font-thin h-8 text-[10px] md:text-base"
         >
           All Participants
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -69,12 +70,19 @@ function ParticipantControl() {
               {participants.map((participant) => (
                 <CommandItem
                   key={participant.identity}
-                  className="text-zinc-900 hover:bg-zinc-400 flex justify-between"
+                  className="text-zinc-900 hover:bg-zinc-400 flex justify-between text-[10px] md:text-base"
                 >
                   {participant.identity}
-                  {!participant.isPublisher && (
+                  {participant.isPublisher ? (
                     <button
-                      className="bg-red-600 cursor-pointer px-2 py-1 rounded-lg text-zinc-200"
+                      className="bg-green-600 px-2 py-1 rounded-lg text-zinc-200 text-[10px] md:text-base cursor-not-allowed"
+                      disabled={true}
+                    >
+                      host
+                    </button>
+                  ) : (
+                    <button
+                      className="bg-red-600 cursor-pointer px-2 py-1 rounded-lg text-zinc-200 text-[10px] md:text-base"
                       onClick={() => removeParticiapnt(participant.identity)}
                     >
                       remove

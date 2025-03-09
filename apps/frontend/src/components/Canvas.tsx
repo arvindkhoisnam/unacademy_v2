@@ -1,19 +1,11 @@
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import {
-  imageCurrPage,
-  imageUrls,
-  socket,
-  toDisplay,
-  userRole,
-} from "../recoil";
+import { imageCurrPage, imageUrls, socket, toDisplay } from "../recoil";
 import { useEffect } from "react";
-import SlideControls from "./SlideControls";
 import { useParams } from "react-router-dom";
 
 function Canvas() {
   const [ImageUrls, setImageUrls] = useRecoilState(imageUrls);
   const Socket = useRecoilValue(socket);
-  const Role = useRecoilValue(userRole);
   const { sessionId } = useParams();
   const setToDisplay = useSetRecoilState(toDisplay);
   const [currPage, setCurrPage] = useRecoilState(imageCurrPage);
@@ -47,7 +39,7 @@ function Canvas() {
     };
   }, [Socket, sessionId, setToDisplay, setImageUrls, setCurrPage]);
   return (
-    <div className="h-[90%] mb-2">
+    <div className="h-full">
       <div
         style={{
           height: "100%",
@@ -59,7 +51,6 @@ function Canvas() {
           backgroundRepeat: "no-repeat",
         }}
       />
-      {Role === "admin" && <SlideControls />}
     </div>
   );
 }

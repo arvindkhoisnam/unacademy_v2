@@ -13,8 +13,7 @@ function ProtectedRoutes({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function init() {
       const res = await axios.get(
-        "https://api-live-classes.arvindkhoisnam.com/api/v1/user",
-        // "http://localhost:3000/api/v1/user",
+        `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/user`,
         {
           withCredentials: true,
           headers: {

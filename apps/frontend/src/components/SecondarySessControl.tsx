@@ -29,12 +29,12 @@ function SecondarySessControl() {
     };
   }, [Socket, open]);
   return (
-    <div className=" flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1 border border-neutral-600 px-2 py-1 rounded-xl">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger>
           <div className="relative">
             <BsChatLeftText
-              size={15}
+              size={12}
               className="text-zinc-300 cursor-pointer"
             />
             {newMsgs > 0 && (
@@ -52,7 +52,9 @@ function SecondarySessControl() {
           <Chat />
         </SheetContent>
       </Sheet>
-      <span className="text-zinc-600 text-xs font-thin">Message</span>
+      <span className="text-zinc-600 text-[10px] md:text-xs font-thin">
+        Message
+      </span>
     </div>
   );
 }

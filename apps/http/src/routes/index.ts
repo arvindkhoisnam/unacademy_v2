@@ -6,6 +6,7 @@ import { userMiddleware } from "../middleware/user";
 import { SignupCreds, SigninCreds } from "@repo/validators/index";
 import bcrypt from "bcryptjs";
 import { getGoogleOAuthToken, getGoogleUserDetails } from "../../utils/utils";
+import { Prisma } from "@prisma/client";
 
 require("dotenv").config();
 
@@ -27,20 +28,37 @@ route.post("/signup", async (req, res) => {
     return;
   }
   const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUser = await db.user.create({
-    data: {
-      username,
-      password: hashedPassword,
-      email,
-      role: "user",
-    },
-  });
 
-  res.status(200).json({
-    message: "User created successfully",
-    userId: newUser.id,
-    email: newUser.email,
-  });
+  try {
+    const newUser = await db.user.create({
+      data: {
+        username,
+        password: hashedPassword,
+        email,
+        role: "user",
+      },
+    });
+
+    res.status(200).json({
+      message: "User created successfully",
+      userId: newUser.id,
+      email: newUser.email,
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      const target = err.meta?.target as String[];
+      const fieldName = target[0];
+      if (fieldName === "username") {
+        res.status(500).json({ message: "Username already taken" });
+        return;
+      } else if (fieldName === "email") {
+        res.status(500).json({ message: "Email already taken" });
+        return;
+      }
+    }
+    res.status(500).json({ message: "An error occured while signing up." });
+    return;
+  }
 });
 
 route.post("/signin", async (req, res) => {
@@ -72,7 +90,8 @@ route.post("/signin", async (req, res) => {
       process.env.JWT_SECRET!
     );
     res.cookie("token", token, {
-      sameSite: "none",
+      // sameSite: "none",
+      sameSite: "lax",
       httpOnly: true,
       secure: true,
     });
@@ -82,7 +101,7 @@ route.post("/signin", async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .json({ message: "An error occured while signing up.", error: err });
+      .json({ message: "An error occured while signing in.", error: err });
   }
 });
 

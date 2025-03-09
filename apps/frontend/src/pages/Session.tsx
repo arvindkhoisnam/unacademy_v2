@@ -11,6 +11,7 @@ import { ToastContainer } from "react-toastify";
 import SecondarySessControl from "../components/SecondarySessControl";
 import { useNavigate } from "react-router-dom";
 import ParticipantControl from "@/components/ParticipantControl";
+import SlideControls from "@/components/SlideControls";
 function Session() {
   const SessionTitle = useRecoilValue(sessionTitle);
   const [videoRoom, setVideoRoom] = useState<Room | null>(null);
@@ -44,36 +45,37 @@ function Session() {
   }, [Socket, navigate]);
   return (
     <>
-      <div className="bg-zinc-950 h-screen ">
-        <div className="bg-zinc-950 h-full p-4 relative">
-          <h1 className="text-2xl text-zinc-200 font-thin">{SessionTitle}</h1>
-          {ToDisplayValue === "video" ? (
-            <Video setVideoRoom={setVideoRoom} />
-          ) : ToDisplayValue === "image" ? (
+      <div className="bg-zinc-900 h-screen p-4 relative flex flex-col justify-between gap-2">
+        <h1 className="text-2xl text-zinc-200 font-thin">{SessionTitle}</h1>
+        {ToDisplayValue === "video" ? (
+          <Video setVideoRoom={setVideoRoom} />
+        ) : ToDisplayValue === "image" ? (
+          <>
             <Canvas />
-          ) : (
-            <Whiteboard />
-          )}
-          <div className=" flex justify-center gap-2">
-            {Role === "admin" ? (
-              <div className="flex items-center gap-2">
-                <SessionControls videoRoom={videoRoom} />
-                <ParticipantControl />
-                <SecondarySessControl />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <UserLeaveBtn videoRoom={videoRoom} />
-                <SecondarySessControl />
-              </div>
-            )}
-          </div>
-          {ToDisplayValue === "board" || ToDisplayValue === "image" ? (
-            <div className="h-44 w-60 bg-zinc-950 absolute top-16 right-6 rounded-lg">
-              <Video setVideoRoom={setVideoRoom} />
+            {Role === "admin" && <SlideControls />}
+          </>
+        ) : (
+          <Whiteboard />
+        )}
+        <div className=" flex justify-center gap-2">
+          {Role === "admin" ? (
+            <div className="flex flex-col md:flex-row items-center gap-2">
+              <SessionControls videoRoom={videoRoom} />
+              <ParticipantControl />
+              <SecondarySessControl />
             </div>
-          ) : null}
+          ) : (
+            <div className="flex items-center justify-center gap-2">
+              <UserLeaveBtn videoRoom={videoRoom} />
+              <SecondarySessControl />
+            </div>
+          )}
         </div>
+        {ToDisplayValue === "board" || ToDisplayValue === "image" ? (
+          <div className="absolute top-16 right-6 rounded-lg w-44 md:w-50">
+            <Video setVideoRoom={setVideoRoom} />
+          </div>
+        ) : null}
       </div>
       <ToastContainer
         position="bottom-right"

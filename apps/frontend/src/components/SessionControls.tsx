@@ -30,8 +30,7 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
   async function endClass() {
     if (!Socket || !videoRoom) return;
     await axios.post(
-      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/end`,
-      // `http://localhost:3000/api/v1/session/${sessionId}/end`,
+      `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/session/${sessionId}/end`,
       {},
       { withCredentials: true }
     );
@@ -60,8 +59,7 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
       newFile.append("file", pdfFile);
 
       const res = await axios.post(
-        `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/slides/pdf`,
-        // `http://localhost:3000/api/v1/session/${sessionId}/slides/pdf`,
+        `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/session/${sessionId}/slides/pdf`,
         newFile,
         { withCredentials: true }
       );
@@ -73,8 +71,7 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
       async function pollImageUrls() {
         try {
           const response = await axios.get(
-            `https://api-live-classes.arvindkhoisnam.com/api/v1/session/task/${taskId}`,
-            // `http://localhost:3000/api/v1/session/task/${taskId}`,
+            `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/session/task/${taskId}`,
             { withCredentials: true }
           );
           if (response.data.status === "completed") {
@@ -139,25 +136,27 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
   }
   return (
     <div className="flex justify-center items-center gap-10">
-      <div className="border border-neutral-600 text-xl text-neutral-200 flex px-2 py-1 justify-center gap-6 max-w-fit rounded-xl">
+      <div className="border border-neutral-600 text-neutral-200 flex flex-col md:flex-row justify-center items-center gap-2 px-2 py-1 rounded-xl">
         <input
           onChange={(e) => setPdfFile(e.target.files![0] || null)}
           type="file"
-          className="p-1 bg-neutral-800 text-neutral-300 text-xs font-thin rounded-lg w-44"
+          className="bg-neutral-800 text-neutral-300 text-[10px] md:text-xs font-thin rounded-lg w-44"
         />
-        <UploadButton
-          setToDisplay={setToDisplay}
-          uploadPdf={uploadPdf}
-          loading={loading}
-        />
-        <DrawButton
-          setToDisplay={setToDisplay}
-          Socket={Socket}
-          sessionId={sessionId}
-        />
-        <VideoButton videoRoom={videoRoom} />
-        <AudioButton videoRoom={videoRoom} />
-        <EndButton endClass={endClass} />
+        <div className="flex items-center gap-4 md:gap-6">
+          <UploadButton
+            setToDisplay={setToDisplay}
+            uploadPdf={uploadPdf}
+            loading={loading}
+          />
+          <DrawButton
+            setToDisplay={setToDisplay}
+            Socket={Socket}
+            sessionId={sessionId}
+          />
+          <VideoButton videoRoom={videoRoom} />
+          <AudioButton videoRoom={videoRoom} />
+          <EndButton endClass={endClass} />
+        </div>
       </div>
     </div>
   );

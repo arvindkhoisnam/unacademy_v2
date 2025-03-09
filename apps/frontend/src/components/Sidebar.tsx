@@ -16,14 +16,14 @@ function Sidebar() {
   const navigate = useNavigate();
   async function logout() {
     await axios.post(
-      "https://api-live-classes.arvindkhoisnam.com/api/v1/logout",
+      `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/logout`,
       {},
       { withCredentials: true }
     );
     navigate("/signin");
   }
   return (
-    <div className="hidden lg:block relative h-full bg-zinc-950 col-span-1 p-2 min-w-44 border-r border-zinc-900">
+    <div className="hidden xl:block relative h-full bg-zinc-950 col-span-1 p-2 min-w-44 border-r border-zinc-900">
       <div className="flex items-end gap-2 text-blue-200 justify-start p-4">
         <LiaSchoolSolid className="text-3xl md:text-3xl" />
         <span className="text-xl md:text-xl">LiveClasses</span>

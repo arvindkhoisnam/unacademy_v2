@@ -23,16 +23,14 @@ function ClassAdmin({
   const { toast } = useToast();
   async function startSession() {
     const res = await axios.post(
-      `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/start`,
-      // `http://localhost:3000/api/v1/session/${sessionId}/start`,
+      `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/session/${sessionId}/start`,
       {},
       {
         withCredentials: true,
       }
     );
-    console.log(res);
     setSessionTitle(res.data.sessionTitle);
-    const ws = new WebSocket("wss://ws-api.arvindkhoisnam.com");
+    const ws = new WebSocket(`${import.meta.env.VITE_WEBSOCKET_URL}`);
     ws.onopen = () => {
       console.log("connected to ws");
       console.log(new Date().toTimeString());
@@ -77,19 +75,20 @@ function ClassAdmin({
     navigate(`/session/${sessionId}`);
   }
   return (
-    <li className="mb-2 px-4 py-3 rounded-xl bg-zinc-900 h-72">
+    // <li className="mb-2 px-4 py-3 rounded-xl bg-zinc-900 h-72">
+    <li className="mb-2 px-4 py-3 rounded-xl max-w-80 bg-zinc-900">
       <div className="flex justify-between mb-10 flex-wrap">
-        <span className="text-zinc-300 font-thin text-4xl tracking-tight">
+        <span className="text-zinc-300 font-thin text-xl md:text-4xl tracking-tight">
           {title}
         </span>
         <div
-          className={`${status === "active" ? "text-blue-300" : "text-zinc-600"} flex items-center gap-2 font-thin text-lg tracking-tight`}
+          className={`${status === "active" ? "text-blue-300" : "text-zinc-600"} flex items-center gap-2 font-thin  text-base md:text-lg tracking-tight`}
         >
           {status === "active" && <MdOnlinePrediction />}
           <span>{status}</span>
         </div>
       </div>
-      <p className="text-zinc-300 text-sm tracking-tight leading-5 font-thin mb-10">
+      <p className="text-zinc-300 text-[10px] md:text-sm tracking-tight leading-5 font-thin mb-10">
         <span className="text-blue-300">Description:</span> Lorem ipsum dolor
         sit amet consectetur adipisicing elit. Sed autem non tenetur! Mollitia
         illo aut voluptatum, quas, voluptas illum soluta nemo vel qui aperiam
@@ -108,7 +107,7 @@ function ClassAdmin({
           >
             {status === "active" ? "End" : "Start"}
           </DialogTrigger>
-          <DialogContent className="bg-zinc-900 border-zinc-700 flex justify-center items-center">
+          <DialogContent className="bg-zinc-900 border-zinc-700 flex justify-center items-center w-72 md:w-full rounded-lg">
             <CheckHair startSession={startSession} />
           </DialogContent>
         </Dialog>

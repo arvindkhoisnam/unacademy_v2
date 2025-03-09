@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoSendSharp } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import { currUser, socket } from "../recoil";
 import { useRecoilValue } from "recoil";
-import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { getMessages } from "@/actions";
 
 function Chat() {
   const [message, setMessage] = useState("");
@@ -13,22 +14,23 @@ function Chat() {
   const Socket = useRecoilValue(socket);
   const { sessionId } = useParams();
   const CurrUser = useRecoilValue(currUser);
-
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { data, isFetching } = useQuery({
+    queryKey: ["messages"],
+    queryFn: () => getMessages(sessionId ?? ""),
+  });
   useEffect(() => {
-    async function getChat() {
-      const res = await axios.get(
-        `https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/chat`,
-        { withCredentials: true }
-      );
-      const prevChat = res.data.chat.map(
-        (c: { sender: string; content: string }) => ({
-          user: c.sender,
-          text: c.content,
-        })
-      );
-      setDisplayText(prevChat);
+    if (!isFetching) {
+      if (data?.data.chat) {
+        const prevChat = data.data.chat.map(
+          (c: { sender: string; content: string }) => ({
+            user: c.sender,
+            text: c.content,
+          })
+        );
+        setDisplayText(prevChat);
+      }
     }
-    getChat();
     function msgHandler(message: MessageEvent) {
       const parsed = JSON.parse(message.data as unknown as string);
       if (parsed.event === "message") {
@@ -41,8 +43,12 @@ function Chat() {
     return () => {
       Socket?.removeEventListener("message", msgHandler);
     };
-  }, [Socket, sessionId]);
-
+  }, [Socket, sessionId, data?.data.chat, isFetching]);
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [displayText]);
   function send() {
     setMessage("");
     Socket?.send(
@@ -59,20 +65,30 @@ function Chat() {
     );
   }
   return (
-    <div className="bg-zinc-900 row-span-4 rounded-xl p-2 h-full">
-      <section className="flex flex-col gap-1 relative overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 scrollbar-thumb-rounded p-3 h-[93%] justify-end">
+    <div className="bg-zinc-900 row-span-4 rounded-xl p-2 h-full flex flex-col justify-between relative">
+      {isFetching && (
+        <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-300 font-extralight text-sm">
+          fetching...
+        </p>
+      )}
+      <section
+        ref={containerRef}
+        className="flex-1 min-h-0 flex flex-col gap-1 relative overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 scrollbar-thumb-rounded p-3"
+      >
         {displayText.map((c, index) => (
           <div
             key={index}
-            className={`${c.user === CurrUser ? "justify-end" : "justify-start"} flex items-center bg-zinc-300 rounded-lg px-1`}
+            className={`${c.user === CurrUser ? "justify-end" : "justify-start"} flex items-center bg-zinc-400 rounded-lg px-1`}
           >
             <span
-              className={`${c.user === CurrUser ? "hidden" : "flex"} size-6 rounded-full bg-zinc-500  justify-center items-center p-2 text-xs text-blue-300`}
+              className={`${c.user === CurrUser ? "hidden" : "flex"} size-3 md:size-6 p-2 text-[8px] md:text-xs font-extralight rounded-full bg-zinc-900  justify-center items-center text-blue-300`}
             >
               {c.user.split("")[0].toUpperCase()}
               {c.user.split("")[1].toUpperCase()}
             </span>
-            <span className={`text-sm text-zinc-950 m-2 font-thin`}>
+            <span
+              className={`text-[10px] md:text-sm text-zinc-950 m-2 font-thin`}
+            >
               {c.text}
             </span>
           </div>
@@ -88,12 +104,12 @@ function Chat() {
             }}
             value={message}
             placeholder="start typing..."
-            className="border border-zinc-700 rounded-xl h-10 w-full bg-zinc-900 px-2 py-1 text-zinc-300 text-sm font-thin"
+            className="border border-zinc-700 rounded-xl h-10 w-full bg-zinc-900 px-2 py-1 text-zinc-300 text-[10px] md:text-sm font-thin"
             onChange={(e) => setMessage(e.target.value)}
           />
         </div>
         <IoSendSharp
-          className="text-xl text-zinc-600 cursor-pointer hover:scale-110 hover:text-blue-300"
+          className="text-sm md:text-xl text-zinc-600 cursor-pointer hover:scale-110 hover:text-blue-300"
           onClick={() => {
             if (message.length > 0) {
               send();

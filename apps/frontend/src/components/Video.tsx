@@ -28,12 +28,11 @@ function Video({
 
     async function startSession() {
       const res = await axios.get(
-        ` https://api-live-classes.arvindkhoisnam.com/api/v1/session/${sessionId}/videoToken`,
-        // ` http://localhost:3000/api/v1/session/${sessionId}/videoToken`,
+        `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/session/${sessionId}/videoToken`,
         { withCredentials: true }
       );
       const vidRes = await newRoom.connect(
-        "https://livekit-api.arvindkhoisnam.com",
+        `${import.meta.env.VITE_LIVEKIT_URL}`,
         res.data.token
       );
       console.log(vidRes);
@@ -120,7 +119,11 @@ function Video({
 
   return (
     <>
-      <video className="h-[85%] w-full bg-zinc-950 my-5" ref={videoRef} />
+      <video
+        // className="h-full w-full bg-neutral-950 rounded-lg"
+        className="flex-1 min-h-0 w-full bg-neutral-950 rounded-lg"
+        ref={videoRef}
+      />
       <audio ref={audioRef} />
     </>
   );

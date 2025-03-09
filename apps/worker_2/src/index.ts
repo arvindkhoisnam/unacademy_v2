@@ -1,12 +1,12 @@
 import { Kafka } from "kafkajs";
 import { db } from "@repo/db/db";
 
-// const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
-const kafka = new Kafka({
-  clientId: "my-app",
-  // brokers: ["kafka-container:9092"],
-  brokers: ["my-kafka.my-kafka.svc.cluster.local:9092"],
-});
+const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
+// const kafka = new Kafka({
+//   clientId: "my-app",
+//   brokers: ["kafka-container:9092"],
+//   // brokers: ["my-kafka.my-kafka.svc.cluster.local:9092"],
+// });
 
 const consumer = kafka.consumer({ groupId: "events" });
 

@@ -260,7 +260,7 @@ function Whiteboard() {
   };
 
   return (
-    <div className="h-[90%] ">
+    <div className="flex-1 min-h-0">
       <canvas
         className="h-[90%] w-full bg-neutral-300 rounded-xl cursor-crosshair mb-4"
         ref={CanvasRef}

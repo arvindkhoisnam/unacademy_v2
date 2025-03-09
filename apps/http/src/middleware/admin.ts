@@ -13,13 +13,11 @@ export function adminMiddleware(
     res.status(403).json({ message: "Unauthorized" });
     return;
   }
-
   try {
     const decoded = jwt.verify(token!, process.env.JWT_SECRET! as string) as {
       id: string;
       role: string;
     };
-
     if (decoded.role !== "admin") {
       res.status(403).json({ message: "Unauthorized" });
       return;

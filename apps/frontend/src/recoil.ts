@@ -64,6 +64,11 @@ const whiteBoardState = atom<boardState[]>({
   default: [],
 });
 
+const navbarHeight = atom({
+  key: "navbarHeight",
+  default: 0,
+});
+
 export {
   userRole,
   email,
@@ -76,4 +81,5 @@ export {
   currUser,
   imageCurrPage,
   whiteBoardState,
+  navbarHeight,
 };

@@ -5,16 +5,18 @@ import { createClient } from "redis";
 import { SessionManager } from "./SessionManager";
 
 const wss = new WebSocketServer({ port: 3001 });
-// const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
-const kafka = new Kafka({
-  clientId: "my-app",
-  brokers: ["my-kafka.my-kafka.svc.cluster.local:9092"],
-});
+const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
+// const kafka = new Kafka({
+//   clientId: "my-app",
+//   brokers: ["my-kafka.my-kafka.svc.cluster.local:9092"],
+// });
 const redisSubscriber = createClient({
-  url: "redis://redis-container:6379",
+  // url: "redis://redis-container:6379",
+  url: "redis://localhost:6379",
 });
 const redisPublisher = createClient({
-  url: "redis://redis-container:6379",
+  // url: "redis://redis-container:6379",
+  url: "redis://localhost:6379",
 });
 
 const producer = kafka.producer();
