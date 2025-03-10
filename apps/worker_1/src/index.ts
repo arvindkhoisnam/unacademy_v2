@@ -4,8 +4,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 require("dotenv").config();
 
 const redisClient = createClient({
-  // url: "redis://redis-container:6379",
-  url: "redis://localhost:6379",
+  url: process.env.REDIS_URL,
 });
 
 console.log({

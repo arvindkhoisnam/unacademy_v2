@@ -3,18 +3,16 @@ import { route } from "./routes";
 import cors from "cors";
 import { createClient } from "redis";
 import cookieParser from "cookie-parser";
+require("dotenv").config();
 
 export const redisClient = createClient({
-  // url: "redis://redis-container:6379",
-  url: "redis://localhost:6379",
+  url: process.env.REDIS_URL,
 });
 export const redisPublisher = createClient({
-  // url: "redis://redis-container:6379",
-  url: "redis://localhost:6379",
+  url: process.env.REDIS_URL,
 });
 export const redisSubscriber = createClient({
-  // url: "redis://redis-container:6379",
-  url: "redis://localhost:6379",
+  url: process.env.REDIS_URL,
 });
 
 (async () => {
@@ -31,7 +29,7 @@ app.use(express.json());
 const allowedOrigins = [
   "http://localhost:5173",
   "http://192.168.29.143:5173",
-  "https://arvind-live-classes.netlify.app",
+  "https://live-classes.arvindkhoisnam.com",
 ];
 
 app.use(

@@ -12,19 +12,25 @@ function ProtectedRoutes({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     async function init() {
-      const res = await axios.get(
-        `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/user`,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setUserRole(res.data.role);
-      setCurrUser(res.data.username);
-      setEmail(res.data.email);
-      setLoading(false);
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_PRIMARY_BACKEND_URL}/user`,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setUserRole(res.data.role);
+        setCurrUser(res.data.username);
+        setEmail(res.data.email);
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
     }
     init();
   }, [setCurrUser, setUserRole, setEmail]);

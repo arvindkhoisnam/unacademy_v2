@@ -50,7 +50,8 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
 
   async function uploadPdf() {
     if (!pdfFile) {
-      return;
+      alert("No file selected");
+      return "No file selected";
     }
 
     try {
@@ -63,7 +64,6 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
         newFile,
         { withCredentials: true }
       );
-      console.log(res);
       const taskId = res.data.taskId;
       const maxRetries = 20;
       let retries = 0;
@@ -125,6 +125,8 @@ function SessionControls({ videoRoom }: { videoRoom: Room | null }) {
             })
           );
           setLoading(false);
+          setPdfFile(null);
+          newFile.delete("file");
           return;
         }
         await new Promise((resolve) => setTimeout(resolve, 2000));

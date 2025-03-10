@@ -31,7 +31,6 @@ function Navbar() {
       setNavbarHeight(ref.current.offsetHeight);
     }
   }, [setNavbarHeight]);
-  console.log(ref.current?.offsetHeight);
   return (
     <div
       className="xl:hidden sticky top-0 flex justify-between items-center z-50 bg-zinc-900 px-2 rounded-lg w-full"

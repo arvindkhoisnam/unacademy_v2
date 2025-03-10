@@ -29,7 +29,7 @@ function SecondarySessControl() {
     };
   }, [Socket, open]);
   return (
-    <div className="flex flex-col items-center gap-1 border border-neutral-600 px-2 py-1 rounded-xl">
+    <div className="flex flex-col items-center border border-neutral-600 px-1 py-1 rounded-lg group cursor-pointer">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger>
           <div className="relative">
@@ -52,7 +52,7 @@ function SecondarySessControl() {
           <Chat />
         </SheetContent>
       </Sheet>
-      <span className="text-zinc-600 text-[10px] md:text-xs font-thin">
+      <span className="text-zinc-600 text-[8px] md:text-xs font-extralight group-hover:text-blue-200">
         Message
       </span>
     </div>

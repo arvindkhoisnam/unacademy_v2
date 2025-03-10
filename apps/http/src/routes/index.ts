@@ -90,8 +90,7 @@ route.post("/signin", async (req, res) => {
       process.env.JWT_SECRET!
     );
     res.cookie("token", token, {
-      // sameSite: "none",
-      sameSite: "lax",
+      sameSite: "none",
       httpOnly: true,
       secure: true,
     });
@@ -134,7 +133,7 @@ route.get("/oauth/google", async (req, res) => {
       res
         .status(200)
         .redirect(
-          "https://arvind-live-classes.netlify.app/dashboard/all-classes"
+          "https://live-classes.arvindkhoisnam.com/dashboard/all-classes"
         );
     } else {
       const newUser = await db.user.create({
@@ -159,7 +158,7 @@ route.get("/oauth/google", async (req, res) => {
       res
         .status(200)
         .redirect(
-          "https://arvind-live-classes.netlify.app/dashboard/all-classes"
+          "https://live-classes.arvindkhoisnam.com/dashboard/all-classes"
         );
     }
   } catch (err) {

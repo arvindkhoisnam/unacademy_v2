@@ -39,7 +39,6 @@ function Video({
       const p = newRoom.localParticipant;
       // Also subscribe to tracks published before participant joined
       newRoom.remoteParticipants.forEach((participant) => {
-        console.log(participant);
         participant.trackPublications.forEach((publication) => {
           console.log(publication);
           publication.setSubscribed(true);

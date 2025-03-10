@@ -3,20 +3,20 @@ import { User } from "./User";
 import { Kafka } from "kafkajs";
 import { createClient } from "redis";
 import { SessionManager } from "./SessionManager";
+require("dotenv").config();
 
 const wss = new WebSocketServer({ port: 3001 });
-const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
-// const kafka = new Kafka({
-//   clientId: "my-app",
-//   brokers: ["my-kafka.my-kafka.svc.cluster.local:9092"],
-// });
+
+const kafka = new Kafka({
+  clientId: "my-app",
+  brokers: [process.env.KAFKA_URL!],
+});
+
 const redisSubscriber = createClient({
-  // url: "redis://redis-container:6379",
-  url: "redis://localhost:6379",
+  url: process.env.REDIS_URL,
 });
 const redisPublisher = createClient({
-  // url: "redis://redis-container:6379",
-  url: "redis://localhost:6379",
+  url: process.env.REDIS_URL,
 });
 
 const producer = kafka.producer();

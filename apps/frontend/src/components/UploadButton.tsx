@@ -9,7 +9,7 @@ function UploadButton({
   loading,
 }: {
   setToDisplay: React.Dispatch<SetStateAction<"video" | "image" | "board">>;
-  uploadPdf: () => Promise<void>;
+  uploadPdf: () => Promise<void | string>;
   loading: boolean;
 }) {
   const setCurrPage = useSetRecoilState(imageCurrPage);
@@ -18,7 +18,10 @@ function UploadButton({
       <TbFileUpload
         className="text-sm"
         onClick={async () => {
-          await uploadPdf();
+          const res = await uploadPdf();
+          if (res === "No file selected") {
+            return;
+          }
           setCurrPage(0);
           setToDisplay("image");
         }}

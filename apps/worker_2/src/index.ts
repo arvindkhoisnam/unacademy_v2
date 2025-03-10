@@ -1,12 +1,11 @@
 import { Kafka } from "kafkajs";
 import { db } from "@repo/db/db";
+require("dotenv").config();
 
-const kafka = new Kafka({ clientId: "my-app", brokers: ["localhost:9092"] });
-// const kafka = new Kafka({
-//   clientId: "my-app",
-//   brokers: ["kafka-container:9092"],
-//   // brokers: ["my-kafka.my-kafka.svc.cluster.local:9092"],
-// });
+const kafka = new Kafka({
+  clientId: "my-app",
+  brokers: [process.env.KAFKA_URL!],
+});
 
 const consumer = kafka.consumer({ groupId: "events" });
 
