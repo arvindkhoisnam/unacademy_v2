@@ -9,7 +9,6 @@ import SignupPage from "./pages/SignupPage";
 import Profile from "./pages/Profile";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import AdminRoute from "./components/AdminRoute";
-
 export default function App() {
   return (
     <BrowserRouter>
