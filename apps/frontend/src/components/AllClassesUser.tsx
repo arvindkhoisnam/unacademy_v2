@@ -32,7 +32,6 @@ function AllClassesUser() {
           </p>
         </div>
       )}
-      {/* <ul className="h-[40rem] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-zinc-950 scrollbar-thumb-rounded p-2 grid grid-cols-3 gap-2 bg-lime-500"> */}
       <ul className="">
         {!isFetching &&
           sessions.map((session: SessionType, index) => (

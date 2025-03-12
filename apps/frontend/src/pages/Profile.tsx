@@ -18,7 +18,7 @@ function Profile() {
         height: `calc(100vh - ${NavbarHeight}px - 16px - 16px)`,
         overflowY: `${deviceHeight! < 800 ? "scroll" : "auto"}`,
       }}
-      className={`w-full col-span-6 xl:col-span-5 bg-zinc-950 rounded-xl p-10 flex flex-col md:flex-row justify-center items-start md:items-center md:block relative`}
+      className={`w-full col-span-6 xl:col-span-5 bg-zinc-950 rounded-xl p-10 flex flex-col md:flex-row justify-center items-start md:items-center md:block relative overflow-y-auto scrollbar-thin scrollbar-track-zinc-950 scrollbar-thumb-zinc-500`}
     >
       <h1 className="text-neutral-400 text-2xl mb-10">Profile</h1>
       <div className="w-full flex flex-col items-start px-5 py-10 lg:flex-row bg-zinc-900 rounded-xl gap-10 relative">
