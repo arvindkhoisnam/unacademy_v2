@@ -12,7 +12,7 @@ function Admin() {
   }, []);
   return (
     <div
-      className={`w-full col-span-5 bg-zinc-950 rounded-xl py-10 relative`}
+      className={`w-full col-span-5 bg-zinc-95 rounded-xl py-10 relative overflow-y-auto scrollbar-thin scrollbar-track-zinc-950 scrollbar-thumb-zinc-500`}
       style={{
         height: `calc(100vh - ${NavbarHeight}px - 16px - 16px)`,
         overflowY: `${deviceHeight! < 800 ? "scroll" : "auto"}`,

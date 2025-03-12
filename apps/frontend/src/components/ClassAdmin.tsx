@@ -75,8 +75,7 @@ function ClassAdmin({
     navigate(`/session/${sessionId}`);
   }
   return (
-    // <li className="mb-2 px-4 py-3 rounded-xl bg-zinc-900 h-72">
-    <li className="mb-2 px-4 py-3 rounded-xl max-w-80 bg-zinc-900">
+    <li className="mb-2 px-4 py-3 rounded-xl max-w-80 bg-zinc-900 min-w-80">
       <div className="flex justify-between mb-10 flex-wrap">
         <span className="text-zinc-300 font-thin text-xl md:text-4xl tracking-tight">
           {title}

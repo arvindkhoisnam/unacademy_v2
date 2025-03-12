@@ -16,12 +16,8 @@ function AllClassAdmin() {
     }
   }, [data]);
   return (
-    <div className="p-6 rounded-xl bg-zinc-950">
-      {/* <h2 className="text-blue-200 text-lg font-thin text-start mb-4">
-        All Sessions
-      </h2> */}
-      {/* <ul className="overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-zinc-950 scrollbar-thumb-rounded p-2 grid grid-cols-3 gap-2"> */}
-      <ul>
+    <div>
+      <ul className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  2xl:grid-cols-5 gap-y-3 gap-x-10 ">
         {sessions.length &&
           sessions.map((session: SessionType, index) => (
             <ClassAdmin

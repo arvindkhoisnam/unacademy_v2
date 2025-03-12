@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { useMutation } from "@tanstack/react-query";
 import { signup } from "@/actions";
 
@@ -72,7 +72,7 @@ function Signup() {
             Signin
           </Link>
         </div>
-        <div className="flex items-center justify-center space-x-2">
+        {/* <div className="flex items-center justify-center space-x-2">
           <div className="flex-1 h-[1px] bg-neutral-500"></div>
           <span className="text-neutral-500 font-thin text-[10px] md:text-xs">
             OR
@@ -84,7 +84,7 @@ function Signup() {
           <span className="text-zinc-300 font-thin text-xs md:text-base">
             Continue with Google
           </span>
-        </div>
+        </div> */}
       </div>
     </div>
   );
